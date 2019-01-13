@@ -53,6 +53,7 @@
 #include "i2s.h"
 #include "spi.h"
 #include "tim.h"
+#include "usart.h"
 #include "usb_host.h"
 #include "gpio.h"
 
@@ -118,6 +119,7 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM5_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   
   //USBH_LL_Connect(&hUsbHostFS);
@@ -130,7 +132,7 @@ int main(void)
 
   /* USER CODE END WHILE */
     MX_USB_HOST_Process();
-    
+
   /* USER CODE BEGIN 3 */
     if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
       HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
