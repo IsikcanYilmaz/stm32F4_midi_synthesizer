@@ -3,6 +3,8 @@
 #include "main.h"
 
 extern uint16_t counters[NUM_OSCILLATORS];
+extern int16_t signal[46876];
+extern int nsamples;
 
 void synth_init();
 void play_note(uint8_t note, uint8_t velocity);

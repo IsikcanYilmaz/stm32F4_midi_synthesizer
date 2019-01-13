@@ -55,7 +55,7 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -135,7 +135,7 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
-
+#define LED_DEMO_MAX_PWM 8192 * 4
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

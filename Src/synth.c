@@ -2,7 +2,10 @@
 #include "tim.h"
 #include "synth.h"
 #include "i2s.h"
+#include <math.h>
 
+#define PI 3.14159265358979323846
+#define TAU (2.0 * PI)
 
 uint16_t counters[NUM_OSCILLATORS], output;
 const uint32_t pitchtbl[] = {16384,
@@ -15,8 +18,21 @@ const uint32_t pitchtbl[] = {16384,
    256,242,228,215,203,192,181,171,161,152,144,136,
    128,121,114,108 ,102,96,91,85,81,76,72,68,64};
 
+int16_t signal[46876];
+int nsamples;
+
 void synth_init(){
-  // TODO
+  volatile int sizeofsignal = sizeof(signal);
+  volatile int sizeofsignal0 = sizeof(signal[0]);
+  nsamples = sizeof(signal) / sizeof(signal[0]);
+  int i = 0;
+  while (i < nsamples){
+    double t = ((double) i / 2.0) / ((double) nsamples);
+    signal[i] = sin(100.0 * TAU * t);
+    signal[i + 1] = signal[i]; // right
+    i += 2;
+  }
+
 }
 
 void play_note(uint8_t note, uint8_t velocity){
@@ -25,12 +41,19 @@ void play_note(uint8_t note, uint8_t velocity){
 
 void synth_output(){
   uint16_t output;
-  if (counters[3] % 2){
+  if (counters[0] % 2){
     output = 0xffff;
   } else {
     output = 0x0000;
   }
-  //HAL_I2S_Transmit(&hi2s2, &output, 1, 1000);
+  //HAL_I2S_Transmit(&hi2s3, &output, 1, 1000);
+  HAL_StatusTypeDef res = HAL_I2S_Transmit(&hi2s3, (uint16_t*)&output, 1, HAL_MAX_DELAY);
+  if (res != HAL_OK){
+    while(1){
+      int error = 0;
+      error++;
+    }
+  }
 }
 
 void make_sound(){

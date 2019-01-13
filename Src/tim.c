@@ -51,15 +51,13 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-#define  PERIOD_VALUE       2  /* Period Value  */
+#define  PERIOD_VALUE       100000  /* Period Value  */
 #define  PULSE1_VALUE       1200        /* Capture Compare 1 Value  */
 #define  PULSE2_VALUE       800         /* Capture Compare 2 Value  */
 #define  PULSE3_VALUE       533         /* Capture Compare 3 Value  */
 #define  PULSE4_VALUE       1         /* Capture Compare 4 Value  */
 
 /* Compute the prescaler value to have TIM2 counter clock equal to 16 MHz */
-uint32_t uwPrescalerValue;
-uwPrescalerValue = (SystemCoreClock / 16000000) - 1;
 
 /* USER CODE END 0 */
 
@@ -99,7 +97,7 @@ void MX_TIM1_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_ENABLE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
   {
@@ -229,10 +227,10 @@ void MX_TIM4_Init(void)
   TIM_OC_InitTypeDef sConfigOC;
 
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = uwPrescalerValue;
+  htim4.Init.Prescaler = 0; //uwPrescalerValue;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = PERIOD_VALUE;
-  htim4.Init.ClockDivision = 0; //TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
