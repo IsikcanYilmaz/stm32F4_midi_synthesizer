@@ -74,7 +74,6 @@ Src/tim.c \
 Src/midi.c \
 Src/synth.c \
 Src/cs43l22.c \
-Src/stm32f4xx_i2c.c \
 Middlewares/ST/STM32_USB_Host_Library/Class/CDC/Src/usbh_cdc.c \
 Src/usart.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
@@ -150,10 +149,10 @@ C_INCLUDES =  \
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -Wunused-variable
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2
+CFLAGS += -g -gdwarf-2 -O0 
 endif
 
 
