@@ -14,3 +14,5 @@ void note_off(uint8_t key);
 void test_tone();
 void make_sound();
 void update_lfos();
+
+void mixer();

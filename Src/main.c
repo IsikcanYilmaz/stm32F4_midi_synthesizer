@@ -60,6 +60,8 @@
 /* USER CODE BEGIN Includes */
 #include "synth.h"
 #include "midi.h"
+//#include "stm32f4_discovery_audio_codec.h"
+#include "cs43l22.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -79,7 +81,35 @@ void MX_USB_HOST_Process(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+void led_demo_animation(){
+  static uint16_t i = 0;
+  static uint8_t current_channel = TIM_CHANNEL_1;
+  static bool direction = true;
+    { // LED ANIMATION DEMO
+      __HAL_TIM_SET_COMPARE(&htim4, current_channel, i);
+      if (direction){
+        i++;
+      } else {
+        i--;
+      }
 
+      if (i >= LED_DEMO_MAX_PWM){
+        i = LED_DEMO_MAX_PWM;
+        direction = false;
+
+      }
+      if (i <= 0){
+        i = 0;
+        direction = true;
+        // change channel as well
+        current_channel += 4;
+        if (current_channel > TIM_CHANNEL_4)
+          current_channel = TIM_CHANNEL_1;
+      }
+    }
+
+
+}
 /* USER CODE END 0 */
 
 /**
@@ -122,6 +152,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_DAC_Init();
   /* USER CODE BEGIN 2 */
+  codec_init();
   synth_init();
 
   //USBH_LL_Connect(&hUsbHostFS);
@@ -129,16 +160,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint16_t i, j;
-  bool direction = true;
-  uint8_t current_channel = TIM_CHANNEL_1;
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
-  TIM1_Config(1625);
-  i = 0;
+  //TIM1_Config(10);
   uint32_t led_animation[16] = {0, 2, 8, 22, 88, 222, 888, 888, 888, 888, 888, 222, 88, 22, 8, 2};
+
+  HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
   while (1)
   {
 
@@ -147,29 +176,9 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
     mixer();
+    led_demo_animation();
 
-    { // LED ANIMATION DEMO
-      __HAL_TIM_SET_COMPARE(&htim4, current_channel, i);
-      if (direction){
-        i++;
-      } else {
-        i--;
-      }
 
-      if (i >= LED_DEMO_MAX_PWM){
-        i = LED_DEMO_MAX_PWM;
-        direction = false;
-
-      }
-      if (i <= 0){
-        i = 0;
-        direction = true;
-        // change channel as well
-        current_channel += 4;
-        if (current_channel > TIM_CHANNEL_4)
-          current_channel = TIM_CHANNEL_1;
-      }
-    }
   }
   /* USER CODE END 3 */
 

@@ -2,6 +2,7 @@
 #include "tim.h"
 #include "synth.h"
 #include "i2s.h"
+#include "dac.h"
 #include <math.h>
 
 #define PI 3.14159265358979323846
@@ -48,7 +49,8 @@ void synth_output(){
   }
   //HAL_I2S_Transmit(&hi2s3, &output, 1, 1000);
   HAL_StatusTypeDef res = HAL_I2S_Transmit(&hi2s3, (uint16_t*)&output, 1, HAL_MAX_DELAY);
-  if (res != HAL_OK){
+  HAL_StatusTypeDef dac_res = HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, output);
+  if (res != HAL_OK || dac_res != HAL_OK){
     while(1){
       int error = 0;
       error++;

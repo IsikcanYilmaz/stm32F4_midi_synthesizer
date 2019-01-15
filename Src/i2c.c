@@ -51,6 +51,7 @@
 #include "i2c.h"
 
 #include "gpio.h"
+#include "cs43l22.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -71,6 +72,7 @@ void MX_I2C1_Init(void)
   hi2c1.Init.OwnAddress2 = 0;
   hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  
   if (HAL_I2C_Init(&hi2c1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -131,7 +133,24 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+/*
+HAL_StatusTypeDef i2c_codec_write_register(uint16_t location, uint8_t *data, uint16_t size){
+  uint8_t payload[size + 2];
+  payload[0] = (0x25 << 2) | (CODEC_BOARD_AD0_PIN << 1) | 0;
+  payload[1] = location;
+  memset(&payload[2], data, size);
+  volatile HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(&hi2c1, CODEC_I2C_ADDRESS, &payload, size + 2, HAL_MAX_DELAY);
+  return ret; 
+}
 
+HAL_StatusTypeDef i2c_codec_read_register(uint16_t location, uint8_t *data, uint16_t size){
+  volatile uint8_t payload;
+  payload = (0x25 << 2) | (CODEC_BOARD_AD0_PIN << 1) | 1;
+ // volatile HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(&hi2c1, CODEC_I2C_ADDRESS, &payload, 1, HAL_MAX_DELAY);
+  volatile HAL_StatusTypeDef ret = HAL_I2C_Master_Receive(&hi2c1, payload, data, size, HAL_MAX_DELAY);
+  return ret;
+}
+*/
 /* USER CODE END 1 */
 
 /**

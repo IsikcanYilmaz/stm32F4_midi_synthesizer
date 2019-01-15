@@ -57,7 +57,6 @@
 #define  PULSE3_VALUE       533         /* Capture Compare 3 Value  */
 #define  PULSE4_VALUE       1         /* Capture Compare 4 Value  */
 
-/* Compute the prescaler value to have TIM2 counter clock equal to 16 MHz */
 
 /* USER CODE END 0 */
 

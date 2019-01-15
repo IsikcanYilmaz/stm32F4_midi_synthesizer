@@ -73,6 +73,8 @@ Src/i2s.c \
 Src/tim.c \
 Src/midi.c \
 Src/synth.c \
+Src/cs43l22.c \
+Src/stm32f4xx_i2c.c \
 Middlewares/ST/STM32_USB_Host_Library/Class/CDC/Src/usbh_cdc.c \
 Src/usart.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \

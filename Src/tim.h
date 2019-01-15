@@ -82,7 +82,11 @@ void MX_TIM5_Init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                     
 /* USER CODE BEGIN Prototypes */
-void animate_pwms(uint8_t pos);
+void TIM1_Config(uint16_t period);
+void TIM2_Config(uint16_t period);
+void TIM3_Config(uint16_t period);
+void TIM4_Config(uint16_t period);
+void TIM5_Config(uint16_t period);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
