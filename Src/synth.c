@@ -47,7 +47,7 @@ void synth_output(){
   } else {
     output = 0x0000;
   }
-  //HAL_I2S_Transmit(&hi2s3, &output, 1, 1000);
+  HAL_I2S_Transmit(&hi2s3, &output, 1, 1000);
   HAL_StatusTypeDef res = HAL_I2S_Transmit(&hi2s3, (uint16_t*)&output, 1, HAL_MAX_DELAY);
   HAL_StatusTypeDef dac_res = HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, output);
   if (res != HAL_OK || dac_res != HAL_OK){

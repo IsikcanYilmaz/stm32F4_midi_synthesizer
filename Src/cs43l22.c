@@ -39,16 +39,22 @@ void codec_init(){
 
   //Apply MCLK at the appropriate frequency, as discussed in Section 4.6. SCLK may be applied or set to master at any time; LRCK may only be applied or set to master while the PDN bit is set to 1. 
   // 1 0 x 0 01 11 => Interface Control 1 (06h) // no need to read its probably 0s
-  codec_write_register(0x06, 0x87);
+  //codec_write_register(0x06, 0x87);
 
   // 1 01 0 0 00 0 => Clocking Control 1 (05h)
-  codec_write_register(0x05, 0xa0);
+  //codec_write_register(0x05, 0xa0);
+  // Clock configuration auto detection
+  codec_write_register(0x05, 0x81);
+
+  // Set slave mod and audio standard
+  codec_write_register(0x06, 0x04);
+
+  // Set volume
+  codec_volume_control(100);
   
   // Set the “Power Ctl 1” register (0x02) to 0x9E
   codec_write_register(0x02, 0x9e);
 
-  //codec_generate_beep();
-  
 }
 
 void codec_generate_beep(){
@@ -75,9 +81,20 @@ void codec_generate_beep(){
   // PCM channel (?) 0 111 1111
   payload = (0xff >> 1);
   codec_write_register(0x1a, payload);
+}
 
-  volatile HAL_StatusTypeDef ret = HAL_I2C_Master_Receive(&hi2c1, CODEC_I2C_ADDRESS, &codec_regs, sizeof(CS43L22_codec_regs_t), HAL_MAX_DELAY);
+void codec_stop_beep(){
+  codec_init();
+}
 
+void codec_volume_control(uint8_t vol){
+  if (vol > 0xe6){
+    codec_write_register(0x20, vol - 0xe7);
+    codec_write_register(0x21, vol - 0xe7);
+  } else {
+    codec_write_register(0x20, vol - 0x19);
+    codec_write_register(0x21, vol - 0x19);
+  }
 }
 
 void codec_reset(){

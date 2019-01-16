@@ -68,7 +68,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint16_t i2s_buffer[256];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -167,12 +167,19 @@ int main(void)
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
-  //TIM1_Config(10);
+  TIM1_Config(1000);
   uint32_t led_animation[16] = {0, 2, 8, 22, 88, 222, 888, 888, 888, 888, 888, 222, 88, 22, 8, 2};
 
   HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
   volatile uint32_t tick = 0;
   int j;
+
+  { // Prepare data
+    for (j = 0; j < 256; j++){
+      i2s_buffer[j] = 
+    }
+  }
+
   while (1)
   {
 
@@ -180,6 +187,10 @@ int main(void)
     //MX_USB_HOST_Process();
 
     /* USER CODE BEGIN 3 */
+
+    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
+
+    }
     mixer();
     led_demo_animation();
   }

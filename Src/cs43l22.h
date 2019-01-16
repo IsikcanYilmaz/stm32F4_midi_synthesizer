@@ -74,6 +74,7 @@ typedef struct {
 void codec_init();
 void codec_deinit();
 void codec_generate_beep();
+void codec_stop_beep();
 void codec_reset();
 uint8_t codec_read_register(uint8_t register_addr);
 void codec_write_register(uint8_t register_addr, uint8_t data);

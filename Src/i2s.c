@@ -111,8 +111,8 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /* USER CODE BEGIN SPI3_MspInit 1 */
-
-  /* USER CODE END SPI3_MspInit 1 */
+  
+    /* USER CODE END SPI3_MspInit 1 */
   }
 }
 
