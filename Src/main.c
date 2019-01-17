@@ -187,7 +187,6 @@ int main(void)
   float s;
   float phaseIncrement = TAU / (BUF_SIZE / 2);
   for (j = 0; j < (BUF_SIZE/2); j+=2){
-    double t = ((double)j/2.0)/((double)(BUF_SIZE/2));
     s = sin(j * phaseIncrement);
     i2s_buffer[j] = (uint16_t) ((float) (1000 * s));
     i2s_buffer[j + 1] = (uint16_t) ((float) (1000 * s));
@@ -219,11 +218,15 @@ int main(void)
     //MX_USB_HOST_Process();
 
     /* USER CODE BEGIN 3 */
-
+    static int index = 0;
     if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){ // if button press
       if (hi2s3.State != HAL_I2S_STATE_BUSY_TX){
-        HAL_StatusTypeDef res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, 1024);
+        HAL_StatusTypeDef res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[index], 2);
       }
+    }
+    index += 2;
+    if (index >= BUF_SIZE){
+      index = 0;
     }
     mixer();
     led_demo_animation();

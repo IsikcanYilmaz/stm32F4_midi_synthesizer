@@ -50,7 +50,7 @@ void codec_init(){
   codec_write_register(0x06, 0x04);
 
   // Set volume
-  codec_volume_control(0xff);
+  codec_volume_control(0xe6);
   
   // Set the “Power Ctl 1” register (0x02) to 0x9E
   codec_write_register(0x02, 0x9e);
