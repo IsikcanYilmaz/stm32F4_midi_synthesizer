@@ -8,6 +8,7 @@
 #define PI 3.14159265358979323846
 #define TAU (2.0 * PI)
 
+extern uint16_t i2s_buffer[256];
 uint16_t counters[NUM_OSCILLATORS], output;
 const uint32_t pitchtbl[] = {16384,
    15464,14596,13777,13004,12274,11585,10935,10321,9742,9195,8679,
@@ -41,21 +42,17 @@ void play_note(uint8_t note, uint8_t velocity){
 }
 
 void synth_output(){
-  uint16_t output;
+  /*uint16_t output;
   if (counters[0] % 2){
     output = 0xffff;
   } else {
     output = 0x0000;
-  }
-  HAL_I2S_Transmit(&hi2s3, &output, 1, 1000);
-  HAL_StatusTypeDef res = HAL_I2S_Transmit(&hi2s3, (uint16_t*)&output, 1, HAL_MAX_DELAY);
-  HAL_StatusTypeDef dac_res = HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, output);
-  if (res != HAL_OK || dac_res != HAL_OK){
-    while(1){
-      int error = 0;
-      error++;
-    }
-  }
+  }*/
+  //HAL_I2S_Transmit(&hi2s3, &output, 1, 1000);
+  //if (hi2s3.State != HAL_I2S_STATE_BUSY_TX){
+  //  HAL_StatusTypeDef res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, 256);
+  //}
+  //HAL_StatusTypeDef dac_res = HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, output);
 }
 
 void make_sound(){

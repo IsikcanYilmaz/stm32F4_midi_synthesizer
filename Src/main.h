@@ -135,8 +135,8 @@
 /* USER CODE BEGIN Private defines */
 #define LED_DEMO_MAX_PWM 8192 * 4
 #define LED_DEMO_DELAY_THRESH 5
-
-extern uint16_t i2s_buffer[256];
+#define BUF_SIZE 512
+extern uint16_t i2s_buffer[BUF_SIZE];
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

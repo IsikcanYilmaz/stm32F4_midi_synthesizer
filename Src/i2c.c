@@ -51,7 +51,6 @@
 #include "i2c.h"
 
 #include "gpio.h"
-#include "cs43l22.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -72,7 +71,6 @@ void MX_I2C1_Init(void)
   hi2c1.Init.OwnAddress2 = 0;
   hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  
   if (HAL_I2C_Init(&hi2c1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
