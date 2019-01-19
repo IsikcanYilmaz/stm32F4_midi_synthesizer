@@ -63,7 +63,9 @@
 #include "midi.h"
 //#include "stm32f4_discovery_audio_codec.h"
 #include "cs43l22.h"
+#include "cmd_uart.h"
 #include <math.h>
+#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -117,9 +119,6 @@ void led_demo_animation(){
 
 }
 
-#define PI 3.14159265358979323846 // TODO get rid of this
-#define TAU (2.0 * PI)
-
 /* USER CODE END 0 */
 
 /**
@@ -162,6 +161,7 @@ int main(void)
   MX_TIM5_Init();
   MX_USART2_UART_Init();
   MX_DAC_Init();
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
   codec_init();
   synth_init();
@@ -178,18 +178,27 @@ int main(void)
   TIM1_Config(1000);
 
   HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
-  volatile uint32_t tick = 0;
-  int j;
+  char sp_buffer[50];
+  int j; for(j = 0; j < 50; j++) { sp_buffer[j] = 0; }
   while (1)
   {
 
-    /* USER CODE END WHILE */
-    //MX_USB_HOST_Process();
+  /* USER CODE END WHILE */
+    MX_USB_HOST_Process();
 
-    /* USER CODE BEGIN 3 */
+  /* USER CODE BEGIN 3 */
 
     mixer();
     led_demo_animation();
+
+    char *test = "asd\n";
+    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
+      //int size = sprintf(sp_buffer, "%d + %d = %d \n", 5, 6, 5+6);
+      //HAL_UART_Transmit(&huart2, (uint8_t*) &sp_buffer, size, HAL_MAX_DELAY);
+      print("%d + %d = %d \n", 5, 6, 5+6);
+    }
+
+
   }
   /* USER CODE END 3 */
 

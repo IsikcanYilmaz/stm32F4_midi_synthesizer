@@ -70,6 +70,7 @@ extern I2C_HandleTypeDef hi2c1;
 extern void _Error_Handler(char *, int);
 
 void MX_I2C1_Init(void);
+void MX_I2C3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
