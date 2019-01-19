@@ -71,8 +71,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint16_t i2s_buffer[BUF_SIZE];
-float sinewave[256];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -181,36 +180,6 @@ int main(void)
   HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
   volatile uint32_t tick = 0;
   int j;
-
-
-
-  float s;
-  float phaseIncrement = TAU / (BUF_SIZE / 2);
-  for (j = 0; j < (BUF_SIZE/2); j+=2){
-    s = sin(j * phaseIncrement);
-    i2s_buffer[j] = (uint16_t) ((float) (1000 * s));
-    i2s_buffer[j + 1] = (uint16_t) ((float) (1000 * s));
-  }
-  /*for (j = 0; j < 1024; j++){
-    s = sin(j * phaseIncrement);
-    i2s_buffer[j] = (int16_t) ((float)(10000 * s));
-  }*/
-
-
-
-  /*
-     int16_t localsignal[46876];
-     int nsamples = sizeof(localsignal) / sizeof(localsignal[0]);
-     int i = 0;
-     while(i < 46876) {
-     double t = ((double)i/2.0)/((double)nsamples);
-     localsignal[i] = 32767*sin(100.0 * TAU * t); // left
-     localsignal[i+1] = localsignal[i]; // right
-     i += 2;
-     }
-  */
-
-
   while (1)
   {
 
@@ -218,16 +187,7 @@ int main(void)
     //MX_USB_HOST_Process();
 
     /* USER CODE BEGIN 3 */
-    static int index = 0;
-    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){ // if button press
-      if (hi2s3.State != HAL_I2S_STATE_BUSY_TX){
-        HAL_StatusTypeDef res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[index], 2);
-      }
-    }
-    index += 2;
-    if (index >= BUF_SIZE){
-      index = 0;
-    }
+
     mixer();
     led_demo_animation();
   }
