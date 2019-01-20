@@ -40,11 +40,13 @@ void play_note(uint8_t note, uint8_t velocity){
 
 void synth_output(){
   HAL_StatusTypeDef res;
-  if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) && hi2s3.State != HAL_I2S_STATE_BUSY_TX){
-    res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[index], 2);
-  } else {
-    uint32_t zeros = 0x00;
-    res = HAL_I2S_Transmit_DMA(&hi2s3, &(zeros), 2);
+  if (hi2s3.State != HAL_I2S_STATE_BUSY_TX){
+    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
+      res = HAL_I2S_Transmit(&hi2s3, &i2s_buffer[index], 2, HAL_MAX_DELAY);
+    } else {
+      uint32_t zeros = 0x00;
+      res = HAL_I2S_Transmit(&hi2s3, &(zeros), 2, HAL_MAX_DELAY);
+    }
   }
   index += 2;
   if (index >= BUF_SIZE)

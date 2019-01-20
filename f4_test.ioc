@@ -107,6 +107,7 @@ NVIC.PendSV_IRQn=true\:0\:0\:false\:false\:true\:true
 NVIC.PriorityGroup=NVIC_PRIORITYGROUP_0
 NVIC.SVCall_IRQn=true\:0\:0\:false\:false\:true\:true
 NVIC.SysTick_IRQn=true\:0\:0\:false\:false\:true\:true
+NVIC.USART2_IRQn=true\:0\:0\:false\:false\:true\:true
 NVIC.UsageFault_IRQn=true\:0\:0\:false\:false\:true\:true
 PA0-WKUP.GPIOParameters=GPIO_PuPd,GPIO_Label,GPIO_ModeDefaultEXTI
 PA0-WKUP.GPIO_Label=B1 [Blue PushButton]
