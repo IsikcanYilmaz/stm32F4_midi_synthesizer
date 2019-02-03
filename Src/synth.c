@@ -32,6 +32,7 @@ void synth_init(){
     i2s_buffer[j] = (uint16_t) ((float) (1000 * s));                        
     i2s_buffer[j + 1] = (uint16_t) ((float) (1000 * s));                    
   }
+  synth_output();
 }
 
 void play_note(uint8_t note, uint8_t velocity){
@@ -42,10 +43,12 @@ void synth_output(){
   HAL_StatusTypeDef res;
   if (hi2s3.State != HAL_I2S_STATE_BUSY_TX){
     if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
-      res = HAL_I2S_Transmit(&hi2s3, &i2s_buffer[index], 2, HAL_MAX_DELAY);
+      //res = HAL_I2S_Transmit(&hi2s3, &i2s_buffer[index], 2, HAL_MAX_DELAY);
+      res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[index], 2);
     } else {
       uint32_t zeros = 0x00;
-      res = HAL_I2S_Transmit(&hi2s3, &(zeros), 2, HAL_MAX_DELAY);
+      //res = HAL_I2S_Transmit(&hi2s3, &(zeros), 2, HAL_MAX_DELAY);
+      res = HAL_I2S_Transmit_DMA(&hi2s3, &(zeros), 2);
     }
   }
   index += 2;
@@ -83,7 +86,7 @@ void note_on(uint8_t key, uint8_t vel){
 }
 
 void note_off(uint8_t key){
-  synth_init();
+  //synth_init();
 
 }
 
@@ -93,7 +96,7 @@ void test_tone(){
 }
 
 void mixer(){
-  make_sound();
+  //make_sound();
   synth_output();
   //update_lfos();
 }

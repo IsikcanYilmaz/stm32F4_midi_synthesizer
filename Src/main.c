@@ -190,7 +190,6 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
-    mixer();
     led_demo_animation();
 
     //char *test = "asd\n";

@@ -37,6 +37,7 @@
 
 /* USER CODE BEGIN 0 */
 #include "cmd_uart.h"
+#include "synth.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -200,11 +201,11 @@ void SysTick_Handler(void)
 void DMA1_Stream5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-
+  
   /* USER CODE END DMA1_Stream5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi3_tx);
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
-
+  mixer();
   /* USER CODE END DMA1_Stream5_IRQn 1 */
 }
 
