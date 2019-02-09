@@ -10,6 +10,10 @@
 #define CHANNEL_PRESSURE  0xD0
 #define PITCH_BEND        0xE0
 
+#define MIDI_BUFFER_SIZE  128
+
+#define MIDI_BUFFER_IS_EMPTY (midi_packet_buffer_head == midi_packet_buffer_tail)
+
 typedef struct MIDIPacket {
     uint8_t status_byte;
     uint8_t data_byte1;
@@ -17,4 +21,6 @@ typedef struct MIDIPacket {
 } MIDIPacket_t;
 
 void process_midi_packet(MIDIPacket_t *p);
-
+void enqueue_midi_packet(MIDIPacket_t p);
+MIDIPacket_t* dequeue_midi_packet();
+void update_midi();

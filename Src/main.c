@@ -53,6 +53,7 @@
 #include "dma.h"
 #include "i2c.h"
 #include "i2s.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_host.h"
@@ -63,6 +64,7 @@
 #include "midi.h"
 //#include "stm32f4_discovery_audio_codec.h"
 #include "cs43l22.h"
+#include "io_expander.h"
 #include "cmd_uart.h"
 #include <math.h>
 #include <stdio.h>
@@ -161,10 +163,14 @@ int main(void)
   MX_TIM5_Init();
   MX_USART2_UART_Init();
   MX_DAC_Init();
-  MX_I2C3_Init();
+  MX_SPI2_Init();
+  MX_TIM14_Init();
   /* USER CODE BEGIN 2 */
   codec_init();
+  //cmd_uart_init();
+  io_expander_init();
   synth_init();
+  internal_tim_init();
 
   //USBH_LL_Connect(&hUsbHostFS);
   /* USER CODE END 2 */
@@ -189,8 +195,10 @@ int main(void)
     //MX_USB_HOST_Process();
 
   /* USER CODE BEGIN 3 */
-
+    poll_keybs();
+    update_midi();
     led_demo_animation();
+
 
     //char *test = "asd\n";
     //if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){

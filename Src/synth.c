@@ -22,6 +22,8 @@ const uint32_t pitchtbl[] = {16384,
 int16_t signal[256];
 int nsamples;
 
+uint8_t test_on_note = 0;
+
 void synth_init(){
   uint16_t j;
   float s;
@@ -42,7 +44,7 @@ void play_note(uint8_t note, uint8_t velocity){
 void synth_output(){
   HAL_StatusTypeDef res;
   if (hi2s3.State != HAL_I2S_STATE_BUSY_TX){
-    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
+    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) || test_on_note){
       //res = HAL_I2S_Transmit(&hi2s3, &i2s_buffer[index], 2, HAL_MAX_DELAY);
       res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[index], 2);
     } else {
@@ -80,14 +82,15 @@ void update_lfos(){
 }
 
 void note_on(uint8_t key, uint8_t vel){
-  uint32_t note = pitchtbl[key];
-  play_note(key + 8, vel);
+  //uint32_t note = pitchtbl[key];
+  //play_note(key + 8, vel);
   //test_tone();
+  test_on_note = key;
 }
 
 void note_off(uint8_t key){
   //synth_init();
-
+  test_on_note = 0;
 }
 
 void test_tone(){

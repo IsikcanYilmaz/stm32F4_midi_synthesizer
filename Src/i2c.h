@@ -65,6 +65,7 @@ extern I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN Private defines */
 
+extern I2C_HandleTypeDef hi2c3;
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);

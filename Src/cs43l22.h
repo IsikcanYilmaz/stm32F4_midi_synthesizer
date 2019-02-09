@@ -14,6 +14,7 @@
 
 #include "i2c.h"
 #include "gpio.h"
+#include "main.h"
 
 #define CODEC_I2C_INSTANCE      hi2c1.Instance
 #define CODEC_FLAG_TIMEOUT      ((uint32_t)0x1000)

@@ -58,7 +58,7 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#define INTERNAL_TIM_SAMPLE_RATE 16000
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim1;

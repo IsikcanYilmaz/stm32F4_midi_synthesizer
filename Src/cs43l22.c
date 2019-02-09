@@ -1,7 +1,6 @@
 
 #include "cs43l22.h"
 #include "i2c.h"
-#include "main.h"
 #include <stdio.h>
 #include <string.h>
 
