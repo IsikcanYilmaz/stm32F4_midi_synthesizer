@@ -55,7 +55,7 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -135,6 +135,16 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
+#define FLOAT_TO_INT16(x) (uint16_t)((int16_t)((32767.0f) * x))
+
+#define LED_DEMO_MAX_PWM 1024
+#define LED_DEMO_DELAY_THRESH 0
+
+#define SAMPLERATE (48000)
+#define Fs ((float)(SAMPLERATE)) // sample rate
+#define Ts (1.f/Fs) // sample period
+#define _PI (3.14159265f)
+#define _2PI (6.283185307f)
 
 /* USER CODE END Private defines */
 

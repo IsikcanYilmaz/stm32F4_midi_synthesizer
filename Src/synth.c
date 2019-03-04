@@ -4,11 +4,14 @@
 #include "i2s.h"
 #include "dac.h"
 #include "gpio.h"
+#include "led.h"
 #include <math.h>
+#include <string.h>
 
-uint16_t i2s_buffer[BUF_SIZE];
+uint16_t i2s_buffer[BUF_SIZE]; // THE i2s buffer
+uint16_t test_buffer[BUF_SIZE];
 uint16_t counters[NUM_OSCILLATORS], output;
-uint16_t index;
+uint16_t buffer_index;
 const uint32_t pitchtbl[] = {16384,
   15464,14596,13777,13004,12274,11585,10935,10321,9742,9195,8679,
   8192,7732,7298,6889,6502,6137,5793,5468,5161,4871,4598,4340,
@@ -24,57 +27,128 @@ int nsamples;
 
 uint8_t test_on_note = 0;
 
+Oscillator_t osc1;
+
 void synth_init(){
+  osc1.amp = 0.4f;
+  osc1.last_amp = 0.9f;
+  osc1.freq = 1;
+  osc1.phase = 0;
+  osc1.out = 0;
+  osc1.modInd = 0;
+  osc1.mul = 1;
+
   uint16_t j;
-  float s;
-  float freq;
-  float phaseIncrement = (TAU / (BUF_SIZE / 2));
-  for (j = 0; j < (BUF_SIZE/2); j+=2){                                      
-    s = sin(j * phaseIncrement);                                            
-    i2s_buffer[j] = (uint16_t) ((float) (1000 * s));                        
-    i2s_buffer[j + 1] = (uint16_t) ((float) (1000 * s));                    
+
+  // init i2s_buffer. 
+  for (j = 0; j < (BUF_SIZE); j+=2){
+    i2s_buffer[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
+    i2s_buffer[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
+    update_oscillator(&osc1);
   }
-  synth_output();
+
+  hdma_spi3_tx.XferHalfCpltCallback = test_dma_half_transfer1;
+  hdma_spi3_tx.XferCpltCallback = test_dma_half_transfer2;
+  //HAL_TIM_Base_Start_IT(&htim14);
+  //synth_output();
+}
+
+void test_dma_half_transfer1(){
+
+}
+
+void test_dma_half_transfer2(){
+
+}
+
+void test_synth_output(){
+  static uint32_t cursor = 0;
+  if (hi2s3.State != HAL_I2S_STATE_BUSY_TX){
+    volatile HAL_StatusTypeDef res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE);
+    cursor += BUF_SIZE;
+    if (cursor >= BUF_SIZE){
+      cursor = 0;
+    }
+  }
+}
+
+void test_synth_output_2ndpart(){
+
+}
+
+void erase_i2s_buffer(){
+  for (int i = 0; i < BUF_SIZE; i++){
+    i2s_buffer[i] = 0;
+  }
+}
+
+void test_bump_pitch(bool up){
+  static int test_midi_num = 61 - 24;
+  /*osc1.mul += MIDI_TO_FREQ(test_midi_num);
+  test_midi_num++;*/
+  if (up){
+    osc1.freq += 12; 
+  } else {
+    osc1.freq -= 12;
+  }
+  for (int j = 0; j < (BUF_SIZE); j+=2){
+    i2s_buffer[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
+    i2s_buffer[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
+    update_oscillator(&osc1);
+  }
+  if (test_midi_num > 61 - 24 + 12){
+    test_midi_num = 61;
+  }
+
 }
 
 void play_note(uint8_t note, uint8_t velocity){
   TIM1_Config(pitchtbl[note]);
 }
 
+static volatile uint16_t out_test[2];
+
 void synth_output(){
-  HAL_StatusTypeDef res;
-  if (hi2s3.State != HAL_I2S_STATE_BUSY_TX){
-    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) || test_on_note){
-      //res = HAL_I2S_Transmit(&hi2s3, &i2s_buffer[index], 2, HAL_MAX_DELAY);
-      res = HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[index], 2);
-    } else {
-      uint32_t zeros = 0x00;
-      //res = HAL_I2S_Transmit(&hi2s3, &(zeros), 2, HAL_MAX_DELAY);
-      res = HAL_I2S_Transmit_DMA(&hi2s3, &(zeros), 2);
-    }
-  }
-  index += 2;
-  if (index >= BUF_SIZE)
-    index = 0;
-  ////HAL_StatusTypeDef dac_res = HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, output);
+
 }
 
-void make_sound(){
-  counters[0] = __HAL_TIM_GetCounter(&htim1);
-  counters[1] = __HAL_TIM_GetCounter(&htim2);
-  counters[2] = __HAL_TIM_GetCounter(&htim3);
-  counters[3] = __HAL_TIM_GetCounter(&htim4);
-  counters[4] = __HAL_TIM_GetCounter(&htim5);
-  /* 
-  float s;
-  float freq;
-  float phaseIncrement = TAU / (BUF_SIZE / 2);                              
-  for (j = 0; j < (BUF_SIZE/2); j+=2){                                      
-    s = sin(j * phaseIncrement);                                            
-    signal[j] = (uint16_t) ((float) (1000 * s));                        
-    signal[j + 1] = (uint16_t) ((float) (1000 * s));                    
+// fill buf[0]-buf[length] with outputs of the oscillator. 
+void make_sound(uint16_t *buf, uint16_t length){
+  static uint8_t ch = TIM_CHANNEL_1;
+  static bool pressed = false;
+  static int16_t last_led_speed;
+  if (last_led_speed != led_speed /*|| led_speed == 500*/){
+    //osc1.amp = 0.2 + led_speed / 500.0;
+    /*if (last_led_speed > led_speed){
+      test_bump_pitch(false);
+    } else {
+      test_bump_pitch(true);
+    }*/
+    test_bump_pitch(true);
+    /*for (int j = 0; j < length; j+=2){
+      buf[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
+      buf[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
+      update_oscillator(&osc1);
+    }*/
+    last_led_speed = led_speed;
   }
-  */
+  //__HAL_TIM_SET_COMPARE(&htim4, ch, 9990);
+  if (!HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
+    //erase_i2s_buffer();
+    pressed = true;
+  } else {
+    if (pressed){
+      //test_bump_pitch();
+      pressed = false;
+    }
+  }
+  //__HAL_TIM_SET_COMPARE(&htim4, ch , 0);
+  ch += 4;
+  if (ch > TIM_CHANNEL_4) ch = TIM_CHANNEL_1;
+}
+
+void make_sound_osc(){
+  update_oscillator(&osc1);
 }
 
 void update_lfos(){
@@ -82,14 +156,12 @@ void update_lfos(){
 }
 
 void note_on(uint8_t key, uint8_t vel){
-  //uint32_t note = pitchtbl[key];
-  //play_note(key + 8, vel);
-  //test_tone();
-  test_on_note = key;
+  if (!test_on_note){
+    test_on_note = key;
+  }
 }
 
 void note_off(uint8_t key){
-  //synth_init();
   test_on_note = 0;
 }
 
@@ -99,7 +171,7 @@ void test_tone(){
 }
 
 void mixer(){
-  //make_sound();
+  make_sound_osc();
   synth_output();
   //update_lfos();
 }

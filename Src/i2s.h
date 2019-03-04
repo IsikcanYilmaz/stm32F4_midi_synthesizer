@@ -64,7 +64,7 @@
 extern I2S_HandleTypeDef hi2s3;
 
 /* USER CODE BEGIN Private defines */
-
+extern DMA_HandleTypeDef hdma_spi3_tx;
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);

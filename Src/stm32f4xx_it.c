@@ -38,11 +38,18 @@
 /* USER CODE BEGIN 0 */
 #include "cmd_uart.h"
 #include "synth.h"
+#include "i2s.h"
+#include "led.h"
+#include "gpio.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern HCD_HandleTypeDef hhcd_USB_OTG_FS;
+extern DAC_HandleTypeDef hdac;
 extern DMA_HandleTypeDef hdma_spi3_tx;
+extern TIM_HandleTypeDef htim5;
+extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim8;
 extern TIM_HandleTypeDef htim14;
 extern UART_HandleTypeDef huart2;
 
@@ -202,11 +209,23 @@ void SysTick_Handler(void)
 void DMA1_Stream5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-  
+
+/*  if(isHalfTransfer){ // IF HALF TX COMPLETE
+    make_sound((uint16_t*)&i2s_buffer, BUF_SIZE_DIV2); // SECOND HALF 
+  } else { // IF TX FULLY COMPLETE
+    make_sound((uint16_t*)&i2s_buffer[BUF_SIZE_DIV2], BUF_SIZE_DIV2); // FIRST HALF
+  }
+  */
+  make_sound(&i2s_buffer, BUF_SIZE);
   /* USER CODE END DMA1_Stream5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi3_tx);
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
-  mixer();
+  if(hi2s3.State != HAL_I2S_STATE_BUSY_TX){ // assuming full transfer
+    HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE);
+  }
+  //mixer();
+  //make_sound_osc();
+  //synth_output();
   /* USER CODE END DMA1_Stream5_IRQn 1 */
 }
 
@@ -216,7 +235,7 @@ void DMA1_Stream5_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-  
+
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
@@ -231,12 +250,44 @@ void USART2_IRQHandler(void)
 void TIM8_TRG_COM_TIM14_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 0 */
-
+  //mixer();
+  //make_sound();
+  //make_sound_osc();
   /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim8);
   HAL_TIM_IRQHandler(&htim14);
   /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 1 */
 
   /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM5 global interrupt.
+*/
+void TIM5_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM5_IRQn 0 */
+  led_isr();
+  /* USER CODE END TIM5_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim5);
+  /* USER CODE BEGIN TIM5_IRQn 1 */
+
+  /* USER CODE END TIM5_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun error interrupts.
+*/
+void TIM6_DAC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+  /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_DAC_IRQHandler(&hdac);
+  HAL_TIM_IRQHandler(&htim6);
+  /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+  /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
 /**

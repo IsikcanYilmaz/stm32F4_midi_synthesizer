@@ -66,6 +66,7 @@
 #include "cs43l22.h"
 #include "io_expander.h"
 #include "cmd_uart.h"
+#include "led.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -88,7 +89,7 @@ void MX_USB_HOST_Process(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-void led_demo_animation(){
+/*void led_demo_animation(){
   static uint16_t i = 0;
   static uint8_t current_channel = TIM_CHANNEL_1;
   static bool direction = true;
@@ -120,7 +121,7 @@ void led_demo_animation(){
 
 
 }
-
+*/
 /* USER CODE END 0 */
 
 /**
@@ -165,12 +166,18 @@ int main(void)
   MX_DAC_Init();
   MX_SPI2_Init();
   MX_TIM14_Init();
+  MX_TIM13_Init();
+  MX_TIM12_Init();
+  MX_TIM6_Init();
+  MX_TIM8_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
   codec_init();
   //cmd_uart_init();
   io_expander_init();
-  synth_init();
   internal_tim_init();
+  synth_init();
+  led_init();
 
   //USBH_LL_Connect(&hUsbHostFS);
   /* USER CODE END 2 */
@@ -188,22 +195,36 @@ int main(void)
   int j; for(j = 0; j < 50; j++) { sp_buffer[j] = 0; }
   //__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
   //HAL_UART_Receive_IT(&huart2, &input_buffer, 1);
+  //mixer();
+  //synth_output();
+  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE);
+  bool pressed = false;
   while (1)
   {
 
   /* USER CODE END WHILE */
-    //MX_USB_HOST_Process();
+    MX_USB_HOST_Process();
 
   /* USER CODE BEGIN 3 */
-    poll_keybs();
-    update_midi();
-    led_demo_animation();
+    //poll_keybs();
+    //update_midi();
+    //led_demo_animation();
 
 
     //char *test = "asd\n";
-    //if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
+    /*
+    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
     //  print("%d + %d = %d \n", 5, 6, 5+6);
-    //}
+      test_synth_output();
+      pressed = true;
+    } else {
+      if (pressed){
+        //erase_i2s_buffer();
+        test_bump_pitch();
+        pressed = false;
+      }
+    }
+    */
     //HAL_UART_Transmit_IT(&huart2, (uint8_t *) test, 4);
 
 
