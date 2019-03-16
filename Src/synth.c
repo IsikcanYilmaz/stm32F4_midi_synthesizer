@@ -47,10 +47,11 @@ void synth_init(){
     update_oscillator(&osc1);
   }
 
-  hdma_spi3_tx.XferHalfCpltCallback = test_dma_half_transfer1;
-  hdma_spi3_tx.XferCpltCallback = test_dma_half_transfer2;
+  //hdma_spi3_tx.XferHalfCpltCallback = test_dma_half_transfer1;
+  //hdma_spi3_tx.XferCpltCallback = test_dma_half_transfer2;
   //HAL_TIM_Base_Start_IT(&htim14);
   //synth_output();
+  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
 }
 
 void test_dma_half_transfer1(){
@@ -91,11 +92,11 @@ void test_bump_pitch(bool up){
   } else {
     osc1.freq -= 12;
   }
-  for (int j = 0; j < (BUF_SIZE); j+=2){
+  /*for (int j = 0; j < (BUF_SIZE); j+=2){
     i2s_buffer[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
     i2s_buffer[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
     update_oscillator(&osc1);
-  }
+  }*/
   if (test_midi_num > 61 - 24 + 12){
     test_midi_num = 61;
   }
@@ -117,21 +118,22 @@ void make_sound(uint16_t *buf, uint16_t length){
   static uint8_t ch = TIM_CHANNEL_1;
   static bool pressed = false;
   static int16_t last_led_speed;
-  if (last_led_speed != led_speed /*|| led_speed == 500*/){
-    //osc1.amp = 0.2 + led_speed / 500.0;
-    /*if (last_led_speed > led_speed){
-      test_bump_pitch(false);
-    } else {
-      test_bump_pitch(true);
-    }*/
-    test_bump_pitch(true);
-    /*for (int j = 0; j < length; j+=2){
+  if (last_led_speed < led_speed /*|| led_speed == 500*/){
+    test_bump_pitch(false);
+    for (int j = 0; j < length; j+=2){
       buf[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
       buf[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
       update_oscillator(&osc1);
-    }*/
-    last_led_speed = led_speed;
+    }
+  } else if (last_led_speed > led_speed) {
+    test_bump_pitch(true);
+    for (int j = 0; j < length; j+=2){
+      buf[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
+      buf[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
+      update_oscillator(&osc1);
+    }
   }
+  last_led_speed = led_speed;
   //__HAL_TIM_SET_COMPARE(&htim4, ch, 9990);
   if (!HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
     //erase_i2s_buffer();
@@ -143,8 +145,6 @@ void make_sound(uint16_t *buf, uint16_t length){
     }
   }
   //__HAL_TIM_SET_COMPARE(&htim4, ch , 0);
-  ch += 4;
-  if (ch > TIM_CHANNEL_4) ch = TIM_CHANNEL_1;
 }
 
 void make_sound_osc(){

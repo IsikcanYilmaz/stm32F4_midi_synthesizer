@@ -52,10 +52,9 @@
 
 #include "gpio.h"
 #include "dma.h"
-#include "synth.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "synth.h"
 /* USER CODE END 0 */
 
 I2S_HandleTypeDef hi2s3;
@@ -122,7 +121,7 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
     hdma_spi3_tx.Init.MemInc = DMA_MINC_ENABLE;
     hdma_spi3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_spi3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_spi3_tx.Init.Mode = DMA_NORMAL;
+    hdma_spi3_tx.Init.Mode = DMA_CIRCULAR;
     hdma_spi3_tx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
     hdma_spi3_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_spi3_tx) != HAL_OK)
@@ -182,14 +181,21 @@ void AudioDMA_FullTransferDoneCallback(struct __DMA_HandleTypeDef *hdma){
   //}
 }
 
+void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s){
+  make_sound(&i2s_buffer, BUF_SIZE_DIV2);
+}
+void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s){
+  make_sound(&i2s_buffer[BUF_SIZE_DIV2], BUF_SIZE_DIV2);
+}
+
 /* USER CODE END 1 */
 
 /**
- * @}
- */
+  * @}
+  */
 
 /**
- * @}
- */
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
