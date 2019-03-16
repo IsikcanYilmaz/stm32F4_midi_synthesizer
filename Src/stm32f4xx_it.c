@@ -209,20 +209,36 @@ void SysTick_Handler(void)
 void DMA1_Stream5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-
-/*  if(isHalfTransfer){ // IF HALF TX COMPLETE
+  bool isHalfTransfer = __HAL_DMA_GET_IT_SOURCE(&hdma_spi3_tx, DMA_IT_HT) != RESET;
+  if(isHalfTransfer){ // IF HALF TX COMPLETE
     make_sound((uint16_t*)&i2s_buffer, BUF_SIZE_DIV2); // SECOND HALF 
   } else { // IF TX FULLY COMPLETE
     make_sound((uint16_t*)&i2s_buffer[BUF_SIZE_DIV2], BUF_SIZE_DIV2); // FIRST HALF
   }
-  */
-  make_sound(&i2s_buffer, BUF_SIZE);
+  
+  //make_sound(&i2s_buffer, BUF_SIZE);
+
+  // Below is hacky. make it better. this is redondo.
+  // HAL_I2S_Transmit sets these fnpointers to something else. 
+  // when youre set with the generated code, change those HAL functions.
+  //hdma_spi3_tx.XferCpltCallback = &AudioDMA_FullTransferDoneCallback;
+  //hdma_spi3_tx.XferHalfCpltCallback = &AudioDMA_HalfTransferDoneCallback;
+
   /* USER CODE END DMA1_Stream5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi3_tx);
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
-  if(hi2s3.State != HAL_I2S_STATE_BUSY_TX){ // assuming full transfer
-    HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE);
-  }
+  //if (!isHalfTransfer){
+    HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
+ // }
+  /*if(hi2s3.State != HAL_I2S_STATE_BUSY_TX){ // assuming full transfer
+    HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE_DIV2);
+  } else {
+    1 + 1;
+    2 + 2;
+    3 + 3;
+
+  }*/
+
   //mixer();
   //make_sound_osc();
   //synth_output();

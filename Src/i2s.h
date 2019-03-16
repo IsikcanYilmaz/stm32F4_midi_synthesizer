@@ -72,7 +72,8 @@ extern void _Error_Handler(char *, int);
 void MX_I2S3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void AudioDMA_FullTransferDoneCallback(struct __DMA_HandleTypeDef *hdma);
+void AudioDMA_HalfTransferDoneCallback(struct __DMA_HandleTypeDef *hdma);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
