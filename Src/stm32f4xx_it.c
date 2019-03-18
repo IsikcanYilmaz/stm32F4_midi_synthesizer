@@ -213,7 +213,7 @@ void DMA1_Stream5_IRQHandler(void)
   if(isHalfTransfer){ // IF HALF TX COMPLETE
     //make_sound((uint16_t*)&i2s_buffer, BUF_SIZE_DIV2); // SECOND HALF 
   } else { // IF TX FULLY COMPLETE
-    make_sound((uint16_t*)&i2s_buffer[BUF_SIZE_DIV2], BUF_SIZE_DIV2); // FIRST HALF
+    //make_sound((uint16_t*)&i2s_buffer[BUF_SIZE_DIV2], BUF_SIZE_DIV2); // FIRST HALF
   }
   
   //make_sound(&i2s_buffer, BUF_SIZE);

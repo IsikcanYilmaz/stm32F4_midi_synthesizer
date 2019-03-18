@@ -30,9 +30,9 @@ uint8_t test_on_note = 0;
 Oscillator_t osc1;
 
 void synth_init(){
-  osc1.amp = 0.4f;
+  osc1.amp = 0.3f;
   osc1.last_amp = 0.9f;
-  osc1.freq = 1;
+  osc1.freq = 0;
   osc1.phase = 0;
   osc1.out = 0;
   osc1.modInd = 0;
@@ -84,21 +84,22 @@ void erase_i2s_buffer(){
 }
 
 void test_bump_pitch(bool up){
-  static int test_midi_num = 61 - 24;
+  static int test_midi_num = 0 ; //61 - 24;
   /*osc1.mul += MIDI_TO_FREQ(test_midi_num);
   test_midi_num++;*/
   if (up){
-    osc1.freq += 12; 
+    osc1.freq += 12 * 3; 
   } else {
-    osc1.freq -= 12;
+    osc1.freq -= 12 * 3;
   }
+
   /*for (int j = 0; j < (BUF_SIZE); j+=2){
     i2s_buffer[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
     i2s_buffer[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
     update_oscillator(&osc1);
   }*/
-  if (test_midi_num > 61 - 24 + 12){
-    test_midi_num = 61;
+  if (test_midi_num > 61 * 3){
+    test_midi_num = 61 * 3;
   }
 
 }
@@ -118,21 +119,24 @@ void make_sound(uint16_t *buf, uint16_t length){
   static uint8_t ch = TIM_CHANNEL_1;
   static bool pressed = false;
   static int16_t last_led_speed;
-  if (last_led_speed < led_speed /*|| led_speed == 500*/){
+  static bool playing = false;
+
+  if (last_led_speed < led_speed ){
     test_bump_pitch(false);
     for (int j = 0; j < length; j+=2){
+      update_oscillator(&osc1);
       buf[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
       buf[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
-      update_oscillator(&osc1);
     }
   } else if (last_led_speed > led_speed) {
     test_bump_pitch(true);
     for (int j = 0; j < length; j+=2){
+      update_oscillator(&osc1);
       buf[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
       buf[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
-      update_oscillator(&osc1);
     }
   }
+
   last_led_speed = led_speed;
   //__HAL_TIM_SET_COMPARE(&htim4, ch, 9990);
   if (!HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
