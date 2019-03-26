@@ -25,6 +25,12 @@ const uint32_t pitchtbl[] = {16384,
 int16_t signal[256];
 int nsamples;
 
+
+Oscillator_t indexOsc;
+Oscillator_t sineOsc;
+float sineWavetable[BUF_SIZE_DIV2];
+float indexWavetable[BUF_SIZE_DIV2];
+
 uint8_t test_on_note = 0;
 
 Oscillator_t osc1;
@@ -51,7 +57,46 @@ void synth_init(){
   //hdma_spi3_tx.XferCpltCallback = test_dma_half_transfer2;
   //HAL_TIM_Base_Start_IT(&htim14);
   //synth_output();
-  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
+
+  // WAVETABLE IMPLEMENTATION
+  // initialize Wavetable variables and structures
+  {
+    sineOsc.amp = 0.3f;
+    sineOsc.last_amp = 0.9f;
+    sineOsc.freq = 600;
+    sineOsc.phase = 0;
+    sineOsc.out = 0;
+    sineOsc.modInd = 0;
+    sineOsc.mul = 1;
+
+    // init the sine signal wavetable. with a sine
+    for (j = 0; j < (BUF_SIZE_DIV2); j++){
+      sineWavetable[j] = update_oscillator(&sineOsc);
+    }
+
+    indexOsc.amp = 0.3f;
+    indexOsc.last_amp = 0.9f;
+    indexOsc.freq = 600;
+    indexOsc.phase = 0;
+    indexOsc.out = 0;
+    indexOsc.modInd = 0;
+    indexOsc.mul = 1;
+    indexOsc.increment = 1;
+    // init the index wavetable. sawtooth
+    for (j = 0; j < (BUF_SIZE_DIV2); j++){
+      indexWavetable[j] = update_oscillator_sawtooth(&indexOsc);
+    }
+
+
+    // init the i2s_buffer 
+    for (j = 0; j < (BUF_SIZE); j+=2){
+      i2s_buffer[j] = 1000 * (sineWavetable[(int16_t) indexWavetable[j/2]] + 0.3);
+      i2s_buffer[j + 1] = i2s_buffer[j];
+    }
+
+    HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
+  }
+
 }
 
 void test_dma_half_transfer1(){
@@ -86,7 +131,7 @@ void erase_i2s_buffer(){
 void test_bump_pitch(bool up){
   static int test_midi_num = 0 ; //61 - 24;
   /*osc1.mul += MIDI_TO_FREQ(test_midi_num);
-  test_midi_num++;*/
+    test_midi_num++;*/
   if (up){
     osc1.freq += 12 * 3; 
   } else {
@@ -97,12 +142,14 @@ void test_bump_pitch(bool up){
     i2s_buffer[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
     i2s_buffer[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
     update_oscillator(&osc1);
-  }*/
+    }*/
   if (test_midi_num > 61 * 3){
     test_midi_num = 61 * 3;
   }
 
 }
+
+
 
 void play_note(uint8_t note, uint8_t velocity){
   TIM1_Config(pitchtbl[note]);
@@ -121,7 +168,7 @@ void make_sound(uint16_t *buf, uint16_t length){
   static int16_t last_led_speed;
   static bool playing = false;
 
-  if (last_led_speed < led_speed ){
+  /*if (last_led_speed < led_speed ){
     test_bump_pitch(false);
     for (int j = 0; j < length; j+=2){
       update_oscillator(&osc1);
@@ -135,7 +182,7 @@ void make_sound(uint16_t *buf, uint16_t length){
       buf[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
       buf[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
     }
-  }
+  }*/
 
   last_led_speed = led_speed;
   //__HAL_TIM_SET_COMPARE(&htim4, ch, 9990);

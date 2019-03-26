@@ -21,3 +21,7 @@ float update_oscillator(Oscillator_t *osc){
   return osc->out;
 }
 
+float update_oscillator_sawtooth(Oscillator_t *osc){
+  osc->out += osc->increment;
+  return osc->out;
+}

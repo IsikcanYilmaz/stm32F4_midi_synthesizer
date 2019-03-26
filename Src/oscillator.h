@@ -10,6 +10,8 @@ typedef struct Oscillator {
   float modInd; // modulation index for fm
   float mul; // pitch frequency multiplier
   float out; // output sample
+  float increment; // increment this much every update
 } Oscillator_t;
 
 float update_oscillator(Oscillator_t *osc);
+float update_oscillator_sawtooth(Oscillator_t *osc);
