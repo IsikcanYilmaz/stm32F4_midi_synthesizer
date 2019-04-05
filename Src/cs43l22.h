@@ -23,6 +23,22 @@
 #define CODEC_I2C_WRITE(x,y)    HAL_I2C_Master_Transmit(&hi2c1, CODEC_I2C_ADDRESS, x, y, HAL_MAX_DELAY) // x: ptr to buffer, y: size
 #define CODEC_I2C_READ(x,y)     HAL_I2C_Master_Receive(&hi2c1, CODEC_I2C_ADDRESS, x, y, HAL_MAX_DELAY);
 
+/* Codec audio Standards (taken from official driver) */
+#define I2S_STANDARD_PHILLIPS
+#ifdef I2S_STANDARD_PHILLIPS
+#define  CODEC_STANDARD                0x04
+#define I2S_STANDARD                   I2S_Standard_Phillips         
+#elif defined(I2S_STANDARD_MSB)
+#define  CODEC_STANDARD                0x00
+#define I2S_STANDARD                   I2S_Standard_MSB    
+#elif defined(I2S_STANDARD_LSB)
+#define  CODEC_STANDARD                0x08
+#define I2S_STANDARD                   I2S_Standard_LSB    
+#else 
+#error "Error: No audio communication standard selected !"
+#endif /* I2S_STANDARD */
+
+
 typedef struct {
   uint8_t reserbed_0[1];
   uint8_t chip_id_reg;        // Chip id and revision. Addr 01h (read only)

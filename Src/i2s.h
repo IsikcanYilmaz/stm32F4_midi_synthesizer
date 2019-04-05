@@ -72,8 +72,8 @@ extern void _Error_Handler(char *, int);
 void MX_I2S3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-void AudioDMA_FullTransferDoneCallback(struct __DMA_HandleTypeDef *hdma);
-void AudioDMA_HalfTransferDoneCallback(struct __DMA_HandleTypeDef *hdma);
+//void AudioDMA_FullTransferDoneCallback(struct __DMA_HandleTypeDef *hdma);
+//void AudioDMA_HalfTransferDoneCallback(struct __DMA_HandleTypeDef *hdma);
 void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s);
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s);
 /* USER CODE END Prototypes */

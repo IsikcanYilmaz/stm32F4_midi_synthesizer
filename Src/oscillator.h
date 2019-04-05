@@ -13,5 +13,23 @@ typedef struct Oscillator {
   float increment; // increment this much every update
 } Oscillator_t;
 
+enum Timbre {
+  SINE = 0,
+  SQUARE,
+  SAWTOOTH,
+  SINE_TABLE
+};
+
+Oscillator_t osc1;
+
 float update_oscillator(Oscillator_t *osc);
 float update_oscillator_sawtooth(Oscillator_t *osc);
+
+float oscillatorSine(Oscillator_t *osc);
+float oscillatorSineTable(Oscillator_t *osc);
+float oscillatorSquare(Oscillator_t *osc);
+float oscillatorSawtooth(Oscillator_t *osc);
+
+float waveCompute(enum Timbre sound, float freq);
+
+

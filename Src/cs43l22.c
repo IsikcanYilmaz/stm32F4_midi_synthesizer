@@ -37,22 +37,24 @@ void codec_init(){
   codec_write_register(0x00, 0x00);
 
   //Apply MCLK at the appropriate frequency, as discussed in Section 4.6. SCLK may be applied or set to master at any time; LRCK may only be applied or set to master while the PDN bit is set to 1. 
+  // Set slave mod and audio standard
   // 1 0 x 0 01 11 => Interface Control 1 (06h) // no need to read its probably 0s
   //codec_write_register(0x06, 0x87);
+  codec_write_register(0x06, CODEC_STANDARD); // taken from dekispator_v2, 0x04 was called CODEC_STANDARD
 
   // 1 01 0 0 00 0 => Clocking Control 1 (05h)
   //codec_write_register(0x05, 0xa0);
   // Clock configuration auto detection
   codec_write_register(0x05, 0x81);
 
-  // Set slave mod and audio standard
-  codec_write_register(0x06, 0x04);
-
   // Set volume
   codec_volume_control(0xf6);
   
   // Set the “Power Ctl 1” register (0x02) to 0x9E
   codec_write_register(0x02, 0x9e);
+
+  // Configure as mono (?)
+  codec_write_register(0x0f, 0x02);
 
 }
 

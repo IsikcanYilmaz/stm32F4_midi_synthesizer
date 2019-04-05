@@ -226,8 +226,6 @@ void DMA1_Stream5_IRQHandler(void)
 
   /* USER CODE END DMA1_Stream5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi3_tx);
-  isHalfTransfer = (__HAL_DMA_GET_IT_SOURCE(&hdma_spi3_tx, DMA_IT_HT) != RESET);
-
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
   //if (!isHalfTransfer){
     //HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);

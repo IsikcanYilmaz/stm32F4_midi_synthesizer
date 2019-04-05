@@ -132,8 +132,8 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
     __HAL_LINKDMA(i2sHandle,hdmatx,hdma_spi3_tx);
 
   /* USER CODE BEGIN SPI3_MspInit 1 */
-  HAL_DMA_RegisterCallback(&hdma_spi3_tx, HAL_DMA_XFER_CPLT_CB_ID, &AudioDMA_FullTransferDoneCallback);
-  HAL_DMA_RegisterCallback(&hdma_spi3_tx, HAL_DMA_XFER_HALFCPLT_CB_ID, &AudioDMA_HalfTransferDoneCallback);
+  //HAL_DMA_RegisterCallback(&hdma_spi3_tx, HAL_DMA_XFER_CPLT_CB_ID, &AudioDMA_FullTransferDoneCallback);
+  //HAL_DMA_RegisterCallback(&hdma_spi3_tx, HAL_DMA_XFER_HALFCPLT_CB_ID, &AudioDMA_HalfTransferDoneCallback);
   /* USER CODE END SPI3_MspInit 1 */
   }
 }
@@ -168,24 +168,13 @@ void HAL_I2S_MspDeInit(I2S_HandleTypeDef* i2sHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-void AudioDMA_HalfTransferDoneCallback(struct __DMA_HandleTypeDef *hdma){
-  // make sound (first half of the buffer)
-  make_sound(&i2s_buffer, BUF_SIZE_DIV2);
-}
-
-void AudioDMA_FullTransferDoneCallback(struct __DMA_HandleTypeDef *hdma){
-  // make sound (second half of the buffer)
-  make_sound(&i2s_buffer + BUF_SIZE_DIV2, BUF_SIZE_DIV2); 
-  //if(hi2s3.State != HAL_I2S_STATE_BUSY_TX){ // assuming full transfer
-  //  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE_DIV2);
-  //}
-}
-
 void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s){
-  make_sound(&i2s_buffer, BUF_SIZE_DIV2);
+  //make_sound(&i2s_buffer, BUF_SIZE_DIV2);
+  make_sound(0, BUF_SIZE_DIV2);
 }
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s){
-  make_sound(&i2s_buffer[BUF_SIZE_DIV2], BUF_SIZE_DIV2);
+  //make_sound(&i2s_buffer[BUF_SIZE_DIV2], BUF_SIZE_DIV2);
+  make_sound(BUF_SIZE_DIV2, BUF_SIZE); 
 }
 
 /* USER CODE END 1 */

@@ -24,7 +24,7 @@ void synth_output();
 void note_on(uint8_t key, uint8_t vel);
 void note_off(uint8_t key);
 void test_tone();
-void make_sound(uint16_t *buf, uint16_t length);
+void make_sound(uint16_t begin, uint16_t end);
 void update_lfos();
 float wave_compute(uint8_t sound, float freq);
 
