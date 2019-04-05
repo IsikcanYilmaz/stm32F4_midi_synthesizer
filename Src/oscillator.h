@@ -30,6 +30,6 @@ float oscillatorSineTable(Oscillator_t *osc);
 float oscillatorSquare(Oscillator_t *osc);
 float oscillatorSawtooth(Oscillator_t *osc);
 
-float waveCompute(enum Timbre sound, float freq);
+float waveCompute(Oscillator_t *osc, enum Timbre sound, float freq);
 
 

@@ -2,7 +2,7 @@
 #define NUM_OSCILLATORS 4
 #define PI 3.14159265358979323846
 #define TAU (2.0 * PI)
-#define BUF_SIZE_DIV4 160
+#define BUF_SIZE_DIV4 160 / 2
 #define BUF_SIZE_DIV2 (2*BUF_SIZE_DIV4)
 #define BUF_SIZE (2*BUF_SIZE_DIV2)
 
@@ -12,6 +12,7 @@
 #include "oscillator.h"
 
 extern Oscillator_t osc1;
+extern Oscillator_t lfo;
 
 extern uint16_t counters[NUM_OSCILLATORS];
 extern int16_t signal[256];

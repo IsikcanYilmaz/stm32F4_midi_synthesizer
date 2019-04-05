@@ -19,6 +19,7 @@ int nsamples;
 
 Oscillator_t indexOsc;
 Oscillator_t sineOsc;
+
 float sineWavetable[BUF_SIZE];
 float indexWavetable[BUF_SIZE_DIV2];
 
@@ -26,7 +27,11 @@ uint8_t test_on_note = 0;
 
 Oscillator_t osc1;
 
+Oscillator_t lfo1;
+Oscillator_t lfo2;
+
 void synth_init(){
+  // main oscillator 
   osc1.amp = 0.5f;
   osc1.last_amp = 0.9f;
   osc1.freq = 440;
@@ -35,70 +40,28 @@ void synth_init(){
   osc1.modInd = 0;
   osc1.mul = 1;
 
+  // lfo1 for sine sweep
+  lfo1.amp = 0.5f;
+  lfo1.last_amp = 0.9f;
+  lfo1.freq = 1;
+  lfo1.phase = 0;
+  lfo1.out = 0;
+  lfo1.modInd = 0;
+  lfo1.mul = 1;
+
+  // lfo2 for sine sweep sweep
+  lfo2.amp = 0.5f;
+  lfo2.last_amp = 0.9f;
+  lfo2.freq = 0.1;
+  lfo2.phase = 0;
+  lfo2.out = 0;
+  lfo2.modInd = 0;
+  lfo2.mul = 1;
+
+
   uint16_t j;
 
-  // init i2s_buffer. 
-  /*for (j = 0; j < (BUF_SIZE); j+=2){
-    i2s_buffer[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
-    i2s_buffer[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
-    update_oscillator(&osc1);
-    //waveCompute(SINE_TABLE, MIDI_TO_FREQ(61));
-  }*/
-
-  for (j = 0; j < (BUF_SIZE_DIV2); j+=1){
-    //i2s_buffer[j] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
-    //i2s_buffer[j + 1] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
-    //update_oscillator(&osc1);
-    waveCompute(SINE, 440);
-  }
-  //for (j = 0; j < (BUF_SIZE); j+=1){
-    //i2s_buffer[j] = (j > BUF_SIZE_DIV2) ? 128: 0;
-    
-  //}
-  //hdma_spi3_tx.XferHalfCpltCallback = test_dma_half_transfer1;
-  //hdma_spi3_tx.XferCpltCallback = test_dma_half_transfer2;
-  //HAL_TIM_Base_Start_IT(&htim14);
-  //synth_output();
-
-  // WAVETABLE IMPLEMENTATION
-  // initialize Wavetable variables and structures
-  {
-    sineOsc.amp = 0.3f;
-    sineOsc.last_amp = 0.9f;
-    sineOsc.freq = 600;
-    sineOsc.phase = 0;
-    sineOsc.out = 0;
-    sineOsc.modInd = 0;
-    sineOsc.mul = 1;
-
-    // init the sine signal wavetable. with a sine
-    for (j = 0; j < (BUF_SIZE_DIV2); j++){
-      sineWavetable[j] = update_oscillator(&sineOsc);
-    }
-
-    indexOsc.amp = 0.3f;
-    indexOsc.last_amp = 0.9f;
-    indexOsc.freq = 600;
-    indexOsc.phase = 0;
-    indexOsc.out = 0;
-    indexOsc.modInd = 0;
-    indexOsc.mul = 1;
-    indexOsc.increment = 1;
-    // init the index wavetable. sawtooth
-    for (j = 0; j < (BUF_SIZE_DIV2); j++){
-      indexWavetable[j] = update_oscillator_sawtooth(&indexOsc);
-    }
-
-
-    // init the i2s_buffer 
-    /*for (j = 0; j < (BUF_SIZE); j+=2){
-      i2s_buffer[j] = 1000 * (sineWavetable[(int16_t) indexWavetable[j/2]] + 0.3);
-      i2s_buffer[j + 1] = i2s_buffer[j];
-    }*/
-
-    HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * 2);
-  }
-
+  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * 2);
 }
 
 void erase_i2s_buffer(){
@@ -154,10 +117,15 @@ void make_sound(uint16_t begin, uint16_t end){
     //y = update_oscillator(&osc1);
     //i2s_buffer[j] = (uint16_t)(1024 * (y + 1) * osc1.amp);
     //i2s_buffer[j + 1] = (uint16_t)(1024 * (y + 1) * osc1.amp);
+    //
+    float lfo2_out =  (waveCompute(&lfo1, SINE_TABLE,  0.1) + 1);
+    osc1.amp = lfo2_out;
+    float lfo1_out = 8 * (waveCompute(&lfo1, SINE_TABLE,  lfo1.freq) + 1);
+    osc1.freq = lfo1_out * lfo1_out * lfo1_out;
+    y = waveCompute(&osc1, SINE_TABLE, osc1.freq);
     i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
     //i2s_buffer[pos + 1] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
     //i2s_buffer[pos] = pos;
-    y = waveCompute(SINE, 700);
   }
 }
 
@@ -165,7 +133,7 @@ void make_sound_osc(){
   update_oscillator(&osc1);
 }
 
-void update_lfos(){
+void update_lfo1s(){
 
 }
 
@@ -187,5 +155,5 @@ void test_tone(){
 void mixer(){
   make_sound_osc();
   synth_output();
-  //update_lfos();
+  //update_lfo1s();
 }

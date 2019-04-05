@@ -31,17 +31,17 @@ float update_oscillator_sawtooth(Oscillator_t *osc){
 ////////////////////////
 // Below is me copying code from Dekrispator_v2
 #define AMP_MULTIPLIER 0.8
-float waveCompute(enum Timbre sound, float freq){
+float waveCompute(Oscillator_t *osc, enum Timbre sound, float freq){
 
   float y;
-  osc1.freq = freq;
+  osc->freq = freq;
   switch(sound){
     case SINE: // accurate sine
-      y = AMP_MULTIPLIER * oscillatorSine(&osc1);
+      y = AMP_MULTIPLIER * oscillatorSine(osc);
       break;
 
     case SINE_TABLE: // sine from hardcoded sine wavetable
-      y = AMP_MULTIPLIER * oscillatorSineTable(&osc1);
+      y = AMP_MULTIPLIER * oscillatorSineTable(osc);
       break;
     default:
       y = 0;
