@@ -26,6 +26,7 @@ float indexWavetable[BUF_SIZE_DIV2];
 uint8_t test_on_note = 0;
 
 Oscillator_t osc1;
+Oscillator_t osc2;
 
 Oscillator_t lfo1;
 Oscillator_t lfo2;
@@ -35,6 +36,15 @@ void synth_init(){
   osc1.amp = 0.5f;
   osc1.last_amp = 0.9f;
   osc1.freq = 440;
+  osc1.phase = 0;
+  osc1.out = 0;
+  osc1.modInd = 0;
+  osc1.mul = 1;
+
+  // 2. oscillator 
+  osc1.amp = 0.5f;
+  osc1.last_amp = 0.9f;
+  osc1.freq = 550;
   osc1.phase = 0;
   osc1.out = 0;
   osc1.modInd = 0;
@@ -114,18 +124,15 @@ void make_sound(uint16_t begin, uint16_t end){
 
   pressed = true;
   for (pos = begin; pos < end; pos++){ 
-    //y = update_oscillator(&osc1);
-    //i2s_buffer[j] = (uint16_t)(1024 * (y + 1) * osc1.amp);
-    //i2s_buffer[j + 1] = (uint16_t)(1024 * (y + 1) * osc1.amp);
-    //
-    float lfo2_out =  (waveCompute(&lfo1, SINE_TABLE,  0.1) + 1);
-    osc1.amp = lfo2_out;
+    // SINE AMPLITUDE AND FREQ SWEEP
+    float lfo2_out = 50 * (waveCompute(&lfo2, SINE_TABLE,  0.01) - 0.1);
+    lfo1.amp = (lfo2_out < 1) ? lfo2_out : 1;
+    lfo1.amp = (osc1.amp > 0.3) ? osc1.amp : 0.3;
+    lfo1.freq = lfo2_out;
     float lfo1_out = 8 * (waveCompute(&lfo1, SINE_TABLE,  lfo1.freq) + 1);
     osc1.freq = lfo1_out * lfo1_out * lfo1_out;
-    y = waveCompute(&osc1, SINE_TABLE, osc1.freq);
+    y = waveCompute(&osc1, SINE_TABLE, osc1.freq) + waveCompute(&osc2, SINE_TABLE, osc2.freq);
     i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
-    //i2s_buffer[pos + 1] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
-    //i2s_buffer[pos] = pos;
   }
 }
 

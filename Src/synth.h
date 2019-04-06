@@ -12,7 +12,11 @@
 #include "oscillator.h"
 
 extern Oscillator_t osc1;
+extern Oscillator_t osc2;
 extern Oscillator_t lfo;
+
+extern Oscillator_t lfo1;
+extern Oscillator_t lfo2;
 
 extern uint16_t counters[NUM_OSCILLATORS];
 extern int16_t signal[256];
