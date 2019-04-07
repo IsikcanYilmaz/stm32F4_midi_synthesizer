@@ -138,15 +138,6 @@ void led_isr(){
       curr_channel = TIM_CHANNEL_1;
     }
 
-    /*if (offset == 20){
-      offset_up = false;
-      } 
-      if (offset == 5){
-      offset_up = true;
-      }*/
-
-
-
   }
 
   led_speed = offset;
