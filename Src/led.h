@@ -24,7 +24,11 @@ extern uint16_t led_signal[LED_SIGNAL_SIZE];
 extern uint16_t led_lfo_signal[LED_SIGNAL_SIZE];
 extern int16_t led_speed;
 
+extern uint32_t led_cursor;
+
 
 void led_init();
 void led_isr();
 void led_demo_animation();
+
+

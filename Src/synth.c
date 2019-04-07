@@ -129,8 +129,9 @@ void make_sound(uint16_t begin, uint16_t end){
     lfo1.amp = (lfo2_out < 1) ? lfo2_out : 1;
     lfo1.amp = (osc1.amp > 0.3) ? osc1.amp : 0.3;
     lfo1.freq = lfo2_out;
-    float lfo1_out = 8 * (waveCompute(&lfo1, SINE_TABLE,  lfo1.freq) + 1);
-    osc1.freq = lfo1_out * lfo1_out * lfo1_out;
+    //float lfo1_out = 8 * (waveCompute(&lfo1, SINE_TABLE,  lfo1.freq) + 1);
+    float lfo1_out = led_signal[led_cursor];
+    osc1.freq = lfo1_out / 8;// * lfo1_out * lfo1_out;
     y = waveCompute(&osc1, SINE_TABLE, osc1.freq) + waveCompute(&osc2, SINE_TABLE, osc2.freq);
     i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
   }

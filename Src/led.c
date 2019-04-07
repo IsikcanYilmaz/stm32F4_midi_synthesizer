@@ -14,6 +14,7 @@ Oscillator_t led_osc;
 Oscillator_t led_lfo;
 uint16_t led_signal[LED_SIGNAL_SIZE];
 uint16_t led_lfo_signal[LED_SIGNAL_SIZE];
+uint32_t led_cursor; 
 
 int16_t led_speed;
 
@@ -35,6 +36,8 @@ float led_update_oscillator(Oscillator_t *osc){
 }
 
 void led_init(){
+  led_cursor = 0;
+
   led_tim_init(LED_SAMPLERATE);
   led_osc.amp = 1.0f;
   led_osc.last_amp = 0.9f;
@@ -79,24 +82,24 @@ void led_isr(){
      */
 
   /* SIN
-  static uint32_t cursor = 0;
-  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, led_signal[cursor]);
-  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, led_signal[cursor]);
-  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, led_signal[cursor]);
-  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, led_signal[cursor]);
-  cursor++;
-  if (cursor >= LED_SIGNAL_SIZE){
-    cursor = 0;
+  static uint32_t led_cursor = 0;
+  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, led_signal[led_cursor]);
+  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, led_signal[led_cursor]);
+  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, led_signal[led_cursor]);
+  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, led_signal[led_cursor]);
+  led_cursor++;
+  if (led_cursor >= LED_SIGNAL_SIZE){
+    led_cursor = 0;
   }
   */
 
   /* ALTERNATING LED SIN
-  static uint32_t cursor = 0;
+  static uint32_t led_cursor = 0;
   static uint8_t curr_channel = TIM_CHANNEL_1;
-  __HAL_TIM_SET_COMPARE(&htim4, curr_channel, led_signal[cursor]);
-  cursor++;
-  if (cursor >= LED_SIGNAL_SIZE){
-    cursor = 0;
+  __HAL_TIM_SET_COMPARE(&htim4, curr_channel, led_signal[led_cursor]);
+  led_cursor++;
+  if (led_cursor >= LED_SIGNAL_SIZE){
+    led_cursor = 0;
     curr_channel += 4;
     if (curr_channel > TIM_CHANNEL_4){
       curr_channel = TIM_CHANNEL_1;
@@ -106,25 +109,12 @@ void led_isr(){
 
   /* ALTERNATING LED SIN WITH SPEEDING UP ALTERNATION ON BUTTON PRESS
    */
-  static uint32_t cursor = 0;
   static uint8_t curr_channel = TIM_CHANNEL_1;
   static int16_t offset = 5;
   static bool offset_up = false;
-  __HAL_TIM_SET_COMPARE(&htim4, curr_channel, led_signal[cursor]);
-  cursor += offset;
-  if (cursor >= LED_SIGNAL_SIZE){
-    cursor = 0;
-    curr_channel += 4;
-    if (curr_channel > TIM_CHANNEL_4){
-      curr_channel = TIM_CHANNEL_1;
-    }
-    
-    /*if (offset == 20){
-      offset_up = false;
-    } 
-    if (offset == 5){
-      offset_up = true;
-    }*/
+  __HAL_TIM_SET_COMPARE(&htim4, curr_channel, led_signal[led_cursor]);
+  led_cursor += offset;
+  if (led_cursor >= LED_SIGNAL_SIZE){
     if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
       offset_up = true;
       offset += (offset_up) ? 10 : -10;
@@ -139,6 +129,24 @@ void led_isr(){
     if (offset <= 5){
       offset = 5;
     }
+  }
+
+  if (led_cursor >= LED_SIGNAL_SIZE){
+    led_cursor = 0;
+    curr_channel += 4;
+    if (curr_channel > TIM_CHANNEL_4){
+      curr_channel = TIM_CHANNEL_1;
+    }
+
+    /*if (offset == 20){
+      offset_up = false;
+      } 
+      if (offset == 5){
+      offset_up = true;
+      }*/
+
+
+
   }
 
   led_speed = offset;
