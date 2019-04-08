@@ -68,20 +68,21 @@ void led_init(){
     //y = sin((pos * LED_Ts) * _2PI); 
     led_lfo_signal[pos] = (uint16_t) (LED_CEIL/2 * (y + 1));
   }
-  if (DEMO_ON) HAL_TIM_Base_Start_IT(&htim5);
+  if (LED_DEMO_ON) HAL_TIM_Base_Start_IT(&htim5);
 }
 
 void led_isr(){
-  /* BLINK
+#if LED_DEMO_BLINK
+  /* BLINK */
      static bool on = false;
      __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, on * 4096);
      __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, on * 4096);
      __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, on * 4096);
      __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_4, on * 4096);
      on = !on;
-     */
-
-  /* SIN
+#endif
+#if LED_DEMO_SINE
+  /* SINE */
   static uint32_t led_cursor = 0;
   __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, led_signal[led_cursor]);
   __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, led_signal[led_cursor]);
@@ -91,9 +92,9 @@ void led_isr(){
   if (led_cursor >= LED_SIGNAL_SIZE){
     led_cursor = 0;
   }
-  */
-
-  /* ALTERNATING LED SIN
+#endif
+#if LED_DEMO_ALTERN
+  /* ALTERNATING LED SIN */
   static uint32_t led_cursor = 0;
   static uint8_t curr_channel = TIM_CHANNEL_1;
   __HAL_TIM_SET_COMPARE(&htim4, curr_channel, led_signal[led_cursor]);
@@ -105,8 +106,8 @@ void led_isr(){
       curr_channel = TIM_CHANNEL_1;
     }   
   }
-   */
-
+#endif
+#if LED_DEMO_LATEST
   /* ALTERNATING LED SIN WITH SPEEDING UP ALTERNATION ON BUTTON PRESS
    */
   static uint8_t curr_channel = TIM_CHANNEL_1;
@@ -141,37 +142,7 @@ void led_isr(){
   }
 
   led_speed = offset;
-}
-
-void led_demo_animation(){
-  static uint16_t i = 0;
-  static uint8_t current_channel = TIM_CHANNEL_1;
-  static bool direction = true;
-  static uint16_t delay = 0;
-  delay++;
-  if (delay > LED_DEMO_DELAY_THRESH){ // LED ANIMATION DEMO
-    __HAL_TIM_SET_COMPARE(&htim4, current_channel, i); 
-    if (direction){
-      i += 4;
-    } else {
-      i -= 4;
-    }   
-
-    if (i >= LED_DEMO_MAX_PWM){
-      i = LED_DEMO_MAX_PWM;
-      direction = false;
-
-    }   
-    if (i <= 0){ 
-      i = 0;
-      direction = true;
-      // change channel as well
-      current_channel += 4;
-      if (current_channel > TIM_CHANNEL_4)
-        current_channel = TIM_CHANNEL_1;
-    }   
-    delay = 0;
-  }
+#endif
 
 }
 

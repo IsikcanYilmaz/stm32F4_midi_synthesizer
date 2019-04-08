@@ -5,25 +5,12 @@
 #include "dac.h"
 #include "gpio.h"
 #include "led.h"
+#include "adsr.h"
 #include <math.h>
 #include <string.h>
 
 uint16_t i2s_buffer[BUF_SIZE]; // THE i2s buffer
-uint16_t test_buffer[BUF_SIZE];
 uint16_t counters[NUM_OSCILLATORS], output;
-uint16_t buffer_index;
-
-int16_t signal[256];
-int nsamples;
-
-
-Oscillator_t indexOsc;
-Oscillator_t sineOsc;
-
-float sineWavetable[BUF_SIZE];
-float indexWavetable[BUF_SIZE_DIV2];
-
-uint8_t test_on_note = 0;
 
 Oscillator_t osc1;
 Oscillator_t osc2;
@@ -31,11 +18,29 @@ Oscillator_t osc2;
 Oscillator_t lfo1;
 Oscillator_t lfo2;
 
+ADSR_t voices[NUM_VOICES];
+Oscillator_t *oscillators[NUM_VOICES];
+
+uint8_t voice_cursor;
+
 void synth_init(){
+  // initialize "voice" structures; ADSR modules.
+  voice_cursor = 0;
+  for (int i = 0; i < NUM_VOICES; i++){
+    adsr_init(&voices[i]);
+  }
+#if ADSR_TEST 
+  ADSR_t *a = &(voices[0]);
+  adsr_set_attack(a, ADSR_KNOB_BASE_VALUE);
+  adsr_set_decay(a, 128);
+  adsr_set_sustain(a, 200);
+  adsr_set_release(a, 128);
+#endif
+
   // main oscillator 
   osc1.amp = 0.5f;
   osc1.last_amp = 0.9f;
-  osc1.freq = 440;
+  osc1.freq = 0;
   osc1.phase = 0;
   osc1.out = 0;
   osc1.modInd = 0;
@@ -44,7 +49,7 @@ void synth_init(){
   // 2. oscillator 
   osc1.amp = 0.5f;
   osc1.last_amp = 0.9f;
-  osc1.freq = 550;
+  osc1.freq = 0;
   osc1.phase = 0;
   osc1.out = 0;
   osc1.modInd = 0;
@@ -68,8 +73,8 @@ void synth_init(){
   lfo2.modInd = 0;
   lfo2.mul = 1;
 
-
-  uint16_t j;
+  oscillators[0] = &osc1; // TODO make these more general
+  //oscillators[1] = osc2;
 
   HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * 2);
 }
@@ -79,28 +84,6 @@ void erase_i2s_buffer(){
     i2s_buffer[i] = 0;
   }
 }
-
-void test_bump_pitch(bool up){
-  static int test_midi_num = 0 ; //61 - 24;
-  /*osc1.mul += MIDI_TO_FREQ(test_midi_num);
-    test_midi_num++;*/
-  if (up){
-    osc1.freq += 12 * 3; 
-  } else {
-    osc1.freq -= 12 * 3;
-  }
-
-  /*for (int j = 0; j < (BUF_SIZE); j+=2){
-    i2s_buffer[j] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
-    i2s_buffer[j + 1] = (uint16_t)(1024 * (osc1.out + 1) * osc1.amp);
-    update_oscillator(&osc1);
-    }*/
-  if (test_midi_num > 61 * 3){
-    test_midi_num = 61 * 3;
-  }
-
-}
-
 
 
 void play_note(uint8_t note, uint8_t velocity){
@@ -122,42 +105,48 @@ void make_sound(uint16_t begin, uint16_t end){
   uint16_t *outp;
   float y;
 
-  pressed = true;
   for (pos = begin; pos < end; pos++){ 
+    // UPDATE ADSR MODULES
+    for (int i = 0; i < NUM_VOICES; i++){
+      adsr_update(&(voices[i]));
+      oscillators[i]->amp = voices[i].amp;
+    }
     // SINE AMPLITUDE AND FREQ SWEEP
-    float lfo2_out = 50 * (waveCompute(&lfo2, SINE_TABLE,  0.01) - 0.1);
+    /*float lfo2_out = 50 * (waveCompute(&lfo2, SINE_TABLE,  0.01) - 0.1);
     lfo1.amp = (lfo2_out < 1) ? lfo2_out : 1;
     lfo1.amp = (osc1.amp > 0.3) ? osc1.amp : 0.3;
-    lfo1.freq = lfo2_out;
+    lfo1.freq = lfo2_out;*/
     //float lfo1_out = 8 * (waveCompute(&lfo1, SINE_TABLE,  lfo1.freq) + 1);
-    float lfo1_out = led_signal[led_cursor];
+    /*float lfo1_out = led_signal[led_cursor];
     osc1.freq = lfo1_out / 8;// * lfo1_out * lfo1_out;
-    y = waveCompute(&osc1, SINE_TABLE, osc1.freq) + waveCompute(&osc2, SINE_TABLE, osc2.freq);
+    */
+    
+    y = waveCompute(&osc1, SINE_TABLE, osc1.freq);
     i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
+    LED_SET_CHANNEL(PWM_CHANNEL_RED, 999 * osc1.amp);
   }
-}
-
-void make_sound_osc(){
-  update_oscillator(&osc1);
-}
-
-void update_lfo1s(){
-
 }
 
 void note_on(uint8_t key, uint8_t vel){
-  if (!test_on_note){
-    test_on_note = key;
-  }
+  LED_SET_CHANNEL(PWM_CHANNEL_GREEN, 999);
+  ADSR_t *adsr = &voices[voice_cursor];
+  adsr_excite(adsr, key);
+  voice_cursor++;
+  voice_cursor = voice_cursor % NUM_VOICES;
+  float freq = MIDI_TO_FREQ(key);
+  osc1.freq = freq;
 }
 
 void note_off(uint8_t key){
-  test_on_note = 0;
-}
-
-void test_tone(){
-  //play_note(pitchtbl[3], NULL);
-
+  LED_SET_CHANNEL(PWM_CHANNEL_GREEN, 0);
+  for (int i = 0; i < NUM_VOICES; i++){
+    if (voices[i].key == key){
+      adsr_release(&voices[i]);
+      return;
+    }
+  }
+  //osc1.freq = 0;
+  //osc2.freq = 0;
 }
 
 void mixer(){

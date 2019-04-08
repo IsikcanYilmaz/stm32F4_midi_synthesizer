@@ -1,5 +1,7 @@
 
 #include "midi.h"
+#include "gpio.h"
+#include "led.h"
 #include "synth.h"
 
 // https://www.nyu.edu/classes/bello/FMT_files/9_MIDI_code.pdf // 
@@ -26,6 +28,22 @@ MIDIPacket_t* dequeue_midi_packet(){
 }
 
 void update_midi(){
+#if MIDI_CNFG_USER_BUTTON_DEMO // user button acts as a midi button press
+  static bool pressed = false;
+  if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
+    if (pressed == false){ // BUTTON PRESS EVENT
+      pressed = true;
+      inject_midi_packet(61, true); 
+    }
+  } else {
+    if (pressed == true){ // BUTTON RELEASE EVENT
+      pressed = false;
+      inject_midi_packet(61, false); 
+    }
+  }
+
+#endif
+
   while(midi_packet_buffer_head != midi_packet_buffer_tail){
     process_midi_packet(dequeue_midi_packet());
   }
@@ -53,4 +71,20 @@ void process_midi_packet(MIDIPacket_t *p){
     default:
       break;
   }
+}
+
+void inject_midi_packet(uint16_t midiNum, bool noteOn){
+  MIDIPacket_t p;
+  uint8_t key = 49; // THIS MAY BE WRONG. MAY HAVE TO -20 FROM KEY VALUES
+  uint8_t vel = 100;
+  if (noteOn){
+    p.data_byte1 = key;
+    p.data_byte2 = vel;
+    p.status_byte = NOTE_ON;
+  } else {
+    p.data_byte2 = key;
+    p.data_byte1 = vel;
+    p.status_byte = NOTE_OFF;
+  }
+  enqueue_midi_packet(p);
 }

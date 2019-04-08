@@ -209,26 +209,7 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
     //poll_keybs();
-    //update_midi();
-    //led_demo_animation();
-
-
-    //char *test = "asd\n";
-    /*
-    if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
-    //  print("%d + %d = %d \n", 5, 6, 5+6);
-      test_synth_output();
-      pressed = true;
-    } else {
-      if (pressed){
-        //erase_i2s_buffer();
-        test_bump_pitch();
-        pressed = false;
-      }
-    }
-    */
-    //HAL_UART_Transmit_IT(&huart2, (uint8_t *) test, 4);
-
+    update_midi();
 
   }
   /* USER CODE END 3 */
