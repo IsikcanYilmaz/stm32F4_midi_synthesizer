@@ -6,6 +6,7 @@
 #include "gpio.h"
 #include "led.h"
 #include "adsr.h"
+#include "frequency_table.h"
 #include <math.h>
 #include <string.h>
 
@@ -31,7 +32,7 @@ void synth_init(){
   }
 #if ADSR_TEST 
   ADSR_t *a = &(voices[0]);
-  adsr_set_attack(a, ADSR_KNOB_BASE_VALUE);
+  adsr_set_attack(a, MIDI_MAX);
   adsr_set_decay(a, 128);
   adsr_set_sustain(a, 200);
   adsr_set_release(a, 128);
@@ -133,7 +134,7 @@ void note_on(uint8_t key, uint8_t vel){
   adsr_excite(adsr, key);
   voice_cursor++;
   voice_cursor = voice_cursor % NUM_VOICES;
-  float freq = MIDI_TO_FREQ(key);
+  float freq = midi_frequency_table[key];
   osc1.freq = freq;
 }
 
@@ -145,8 +146,8 @@ void note_off(uint8_t key){
       return;
     }
   }
-  //osc1.freq = 0;
-  //osc2.freq = 0;
+  osc1.freq = 0;
+  osc2.freq = 0;
 }
 
 void mixer(){

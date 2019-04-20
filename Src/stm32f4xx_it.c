@@ -37,10 +37,15 @@
 
 /* USER CODE BEGIN 0 */
 #include "cmd_uart.h"
+#include "usart.h"
 #include "synth.h"
 #include "i2s.h"
 #include "led.h"
 #include "gpio.h"
+#include "midi.h"
+
+
+#include "stm32f4xx_hal_usart.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -51,7 +56,9 @@ extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim8;
 extern TIM_HandleTypeDef htim14;
+extern DMA_HandleTypeDef hdma_usart3_rx;
 extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart3;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -204,44 +211,31 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+* @brief This function handles DMA1 stream1 global interrupt.
+*/
+void DMA1_Stream1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+  /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
+  //HAL_UART_Receive_DMA(&huart3, &midi_usart_buffer[midi_usart_buffer_index * MIDI_PACKET_SIZE], MIDI_PACKET_SIZE);
+  //huart3.pTxBuffPtr += midi_packet_buffer_head * MIDI_PACKET_SIZE;
+  /* USER CODE END DMA1_Stream1_IRQn 1 */
+}
+
+/**
 * @brief This function handles DMA1 stream5 global interrupt.
 */
 void DMA1_Stream5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-  bool isHalfTransfer = (__HAL_DMA_GET_IT_SOURCE(&hdma_spi3_tx, DMA_IT_HT) != RESET);
-  if(isHalfTransfer){ // IF HALF TX COMPLETE
-    //make_sound((uint16_t*)&i2s_buffer, BUF_SIZE_DIV2); // SECOND HALF 
-  } else { // IF TX FULLY COMPLETE
-    //make_sound((uint16_t*)&i2s_buffer[BUF_SIZE_DIV2], BUF_SIZE_DIV2); // FIRST HALF
-  }
-  
-  //make_sound(&i2s_buffer, BUF_SIZE);
-
-  // Below is hacky. make it better. this is redondo.
-  // HAL_I2S_Transmit sets these fnpointers to something else. 
-  // when youre set with the generated code, change those HAL functions.
-  //hdma_spi3_tx.XferCpltCallback = &AudioDMA_FullTransferDoneCallback;
-  //hdma_spi3_tx.XferHalfCpltCallback = &AudioDMA_HalfTransferDoneCallback;
 
   /* USER CODE END DMA1_Stream5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_spi3_tx);
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
-  //if (!isHalfTransfer){
-    //HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
- // }
-  /*if(hi2s3.State != HAL_I2S_STATE_BUSY_TX){ // assuming full transfer
-    HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE_DIV2);
-  } else {
-    1 + 1;
-    2 + 2;
-    3 + 3;
 
-  }*/
-
-  //mixer();
-  //make_sound_osc();
-  //synth_output();
   /* USER CODE END DMA1_Stream5_IRQn 1 */
 }
 
@@ -261,8 +255,44 @@ void USART2_IRQHandler(void)
 }
 
 /**
-* @brief This function handles TIM8 trigger and commutation interrupts and TIM14 global interrupt.
+* @brief This function handles USART3 global interrupt.
 */
+void USART3_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_IRQn 0 */
+  /*if (__HAL_USART_GET_IT_SOURCE(&huart3, USART_IT_RXNE)){
+    static int usartIrqLed = 0;
+    midi_usart_buffer_index++;
+    if (midi_usart_buffer_index == 3){
+      MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer;
+      enqueue_midi_packet(p);
+      LED_SET_CHANNEL(PWM_CHANNEL_ORANGE, usartIrqLed);
+      midi_usart_buffer_index = 0;
+      if (usartIrqLed == 0){
+        usartIrqLed = 999;
+      } else {
+        usartIrqLed = 0;
+      }
+    }
+  }*/
+  /*if (midi_usart_buffer_index >= MIDI_BUFFER_SIZE_BYTES){
+    midi_usart_buffer_index = 0;
+    }
+    if (midi_usart_buffer_index % MIDI_PACKET_SIZE == 0){
+    MIDIPacket_t *p = (MIDIPacket_t *) (&midi_usart_buffer[midi_usart_buffer_index - MIDI_PACKET_SIZE]);
+    enqueue_midi_packet(p);
+    }*/
+  // commenting out the irq handler doesnt seem to break anything. so far. 
+  /* USER CODE END USART3_IRQn 0 */
+  HAL_UART_IRQHandler(&huart3); 
+  /* USER CODE BEGIN USART3_IRQn 1 */
+
+  /* USER CODE END USART3_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM8 trigger and commutation interrupts and TIM14 global interrupt.
+ */
 void TIM8_TRG_COM_TIM14_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 0 */
@@ -278,8 +308,8 @@ void TIM8_TRG_COM_TIM14_IRQHandler(void)
 }
 
 /**
-* @brief This function handles TIM5 global interrupt.
-*/
+ * @brief This function handles TIM5 global interrupt.
+ */
 void TIM5_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM5_IRQn 0 */
@@ -292,8 +322,8 @@ void TIM5_IRQHandler(void)
 }
 
 /**
-* @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun error interrupts.
-*/
+ * @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun error interrupts.
+ */
 void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
@@ -307,8 +337,8 @@ void TIM6_DAC_IRQHandler(void)
 }
 
 /**
-* @brief This function handles USB On The Go FS global interrupt.
-*/
+ * @brief This function handles USB On The Go FS global interrupt.
+ */
 void OTG_FS_IRQHandler(void)
 {
   /* USER CODE BEGIN OTG_FS_IRQn 0 */

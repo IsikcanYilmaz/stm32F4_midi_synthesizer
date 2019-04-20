@@ -69,6 +69,7 @@
 #include "led.h"
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -171,6 +172,7 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM8_Init();
   MX_TIM7_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   codec_init();
   //cmd_uart_init();
@@ -195,8 +197,15 @@ int main(void)
   HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
   char sp_buffer[50];
   int j; for(j = 0; j < 50; j++) { sp_buffer[j] = 0; }
-  //__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
-  //HAL_UART_Receive_IT(&huart2, &input_buffer, 1);
+
+  // ENABLE UART INTERRUPTS AND FIRE OFF UARTS
+  __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+  HAL_UART_Receive_IT(&huart2, &input_buffer, 1);
+  NVIC_EnableIRQ(USART2_IRQn);
+  //__HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
+  __HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_TC);
+  HAL_UART_Receive_DMA(&huart3, &midi_usart_buffer, MIDI_PACKET_SIZE);
+  
   //mixer();
   //synth_output();
   HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE);
@@ -208,7 +217,7 @@ int main(void)
     MX_USB_HOST_Process();
 
   /* USER CODE BEGIN 3 */
-    //poll_keybs();
+    //poll_keybs(); // requires: io expander board
     update_midi();
 
   }

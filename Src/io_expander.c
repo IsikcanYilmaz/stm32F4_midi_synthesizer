@@ -75,7 +75,7 @@ void poll_keybs(){
           p.data_byte1 = 50;
           p.data_byte2 = pin_to_midi_value(port_a_diff & (0x01 << i), true);
         }
-        enqueue_midi_packet(p);
+        enqueue_midi_packet(&p);
       }
     }
     regs[0] = port_a;
@@ -93,7 +93,7 @@ void poll_keybs(){
           p.data_byte1 = 50;
           p.data_byte2 = pin_to_midi_value(port_b_diff & (0x01 << i), false);
         }
-        enqueue_midi_packet(p);
+        enqueue_midi_packet(&p);
       }
     }
     regs[1] = port_b;

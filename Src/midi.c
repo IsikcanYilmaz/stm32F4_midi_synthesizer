@@ -2,19 +2,24 @@
 #include "midi.h"
 #include "gpio.h"
 #include "led.h"
+#include "usart.h"
 #include "synth.h"
 
 // https://www.nyu.edu/classes/bello/FMT_files/9_MIDI_code.pdf // 
 // https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node158.html //
 //
 
+uint8_t midi_usart_buffer[MIDI_USART_BUFFER_SIZE];
 MIDIPacket_t midi_packet_buffer[MIDI_BUFFER_SIZE]; // TODO make this better // implement general purpose fifo
-uint8_t midi_packet_buffer_head = 0;
-uint8_t midi_packet_buffer_tail = 0;
+volatile uint16_t midi_packet_buffer_head = 0;
+volatile uint16_t midi_packet_buffer_tail = 0;
+volatile uint16_t midi_usart_buffer_index = 0;
+
+volatile uint8_t midi_dma_buffer[MIDI_PACKET_SIZE];
 
 // puts packet in fifo. increments tail
-void enqueue_midi_packet(MIDIPacket_t p){
-  midi_packet_buffer[midi_packet_buffer_tail] = p;
+void enqueue_midi_packet(MIDIPacket_t *p){
+  midi_packet_buffer[midi_packet_buffer_tail] = *p;
   midi_packet_buffer_tail++;
   midi_packet_buffer_tail = midi_packet_buffer_tail % MIDI_BUFFER_SIZE;
 }
@@ -24,7 +29,17 @@ MIDIPacket_t* dequeue_midi_packet(){
   MIDIPacket_t *ret = &midi_packet_buffer[midi_packet_buffer_head];
   midi_packet_buffer_head++;
   midi_packet_buffer_head = midi_packet_buffer_head % MIDI_BUFFER_SIZE;
+#if 0
+  MIDIPacket_t *ret = (MIDIPacket_t *)(&midi_usart_buffer + midi_packet_buffer_head);
+  midi_packet_buffer_head += MIDI_PACKET_SIZE;
+  midi_packet_buffer_head = midi_packet_buffer_head % MIDI_USART_BUFFER_SIZE;
+#endif
   return ret;
+}
+
+// receive_midi_packet() is called on USART3 global interrupt. 
+// handles the reception of midi packet. enqueues it.
+void receive_midi_packet(uint8_t data){
 }
 
 void update_midi(){
@@ -47,20 +62,26 @@ void update_midi(){
   while(midi_packet_buffer_head != midi_packet_buffer_tail){
     process_midi_packet(dequeue_midi_packet());
   }
+
+  //while( midi_packet_buffer_head / sizeof(MIDIPacket_t) < midi_packet_buffer_tail / sizeof(MIDIPacket_t)){
+  //  process_midi_packet(dequeue_midi_packet());
+  //}
 }
 
 void process_midi_packet(MIDIPacket_t *p){
   uint8_t key, vel;
   switch(p->status_byte & 0xf0){
     case NOTE_OFF:
-      key = p->data_byte2;
-      vel = p->data_byte1;
+      key = p->data_byte1;
+      vel = p->data_byte2;
       note_off(key);
+      LED_SET_CHANNEL(PWM_CHANNEL_BLUE,0);
       break;
     case NOTE_ON:
       key = p->data_byte1;
       vel = p->data_byte2;
       note_on(key, vel);
+      LED_SET_CHANNEL(PWM_CHANNEL_BLUE,999);
       break;
     case POLY_KEY_PRESSURE:
 
@@ -86,5 +107,5 @@ void inject_midi_packet(uint16_t midiNum, bool noteOn){
     p.data_byte1 = vel;
     p.status_byte = NOTE_OFF;
   }
-  enqueue_midi_packet(p);
+  enqueue_midi_packet(&p);
 }
