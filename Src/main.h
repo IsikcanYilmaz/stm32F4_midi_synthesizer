@@ -146,6 +146,9 @@
 #define _PI (3.14159265f)
 #define _2PI (6.283185307f)
 
+#define DMA_TEST_BUFFER_SIZE 16 * 3 // SAME AS MIDI_DMA_BUFFER_SIZE_BYTES 
+extern uint8_t midi_dma_test_buffer[DMA_TEST_BUFFER_SIZE];
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

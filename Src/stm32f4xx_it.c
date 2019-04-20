@@ -264,17 +264,16 @@ void USART3_IRQHandler(void)
     static int usartIrqLed = 0;
     midi_usart_buffer_index++;
     if (midi_usart_buffer_index == 3){
-      MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer;
-      enqueue_midi_packet(p);
-      LED_SET_CHANNEL(PWM_CHANNEL_ORANGE, usartIrqLed);
-      midi_usart_buffer_index = 0;
-      if (usartIrqLed == 0){
-        usartIrqLed = 999;
-      } else {
-        usartIrqLed = 0;
-      }
+    MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer;
+    enqueue_midi_packet(p);
+    midi_usart_buffer_index = 0;
+    if (usartIrqLed == 0){
+    usartIrqLed = 999;
+    } else {
+    usartIrqLed = 0;
     }
-  }*/
+    }
+    }*/
   /*if (midi_usart_buffer_index >= MIDI_BUFFER_SIZE_BYTES){
     midi_usart_buffer_index = 0;
     }

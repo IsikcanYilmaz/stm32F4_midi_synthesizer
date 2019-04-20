@@ -16,6 +16,7 @@
 #define MIDI_BUFFER_SIZE  16 // PACKETS
 #define MIDI_BUFFER_SIZE_BYTES (MIDI_PACKET_SIZE * MIDI_BUFFER_SIZE)
 #define MIDI_USART_BUFFER_SIZE (3*MIDI_BUFFER_SIZE)
+#define MIDI_DMA_BUFFER_SIZE_BYTES (MIDI_PACKET_SIZE * 16) 
 
 #define MIDI_USART_BAUD_RATE 31250
 
@@ -32,8 +33,9 @@ extern volatile uint16_t midi_usart_buffer_index;
 extern volatile uint16_t midi_packet_buffer_head;
 extern volatile uint16_t midi_packet_buffer_tail;
 
-extern volatile uint8_t midi_dma_buffer[MIDI_PACKET_SIZE];
+extern volatile uint8_t midi_dma_buffer[MIDI_DMA_BUFFER_SIZE_BYTES];
 
+void init_midi();
 void receive_midi_packet(uint8_t data); 
 void process_midi_packet(MIDIPacket_t *p);
 void enqueue_midi_packet(MIDIPacket_t *p);
@@ -41,3 +43,4 @@ MIDIPacket_t* dequeue_midi_packet();
 void update_midi();
 void inject_midi_packet(uint16_t midiNum, bool noteOn);
 uint8_t midi_usart_buffer[MIDI_USART_BUFFER_SIZE];
+

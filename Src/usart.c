@@ -238,16 +238,17 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 /* USER CODE BEGIN 1 */
 void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart){
-#if 0
   MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer[0];
   enqueue_midi_packet(p);
-#endif
+  LED_SET_CHANNEL(PWM_CHANNEL_ORANGE, 999);
 }
 
 void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart){
-  MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer;
-  enqueue_midi_packet(p);
-
+#warning "ASDQWE"
+  LED_SET_CHANNEL(PWM_CHANNEL_ORANGE, 999);
+  //MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer[MIDI_PACKET_SIZE];
+  //enqueue_midi_packet(p);
+  //LED_SET_CHANNEL(PWM_CHANNEL_ORANGE, 999);
 }
 /* USER CODE END 1 */
 

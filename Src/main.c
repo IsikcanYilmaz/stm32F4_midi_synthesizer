@@ -67,6 +67,7 @@
 #include "io_expander.h"
 #include "cmd_uart.h"
 #include "led.h"
+#include "stm32f4xx_hal_dma.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,7 +78,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint8_t midi_dma_test_buffer[MIDI_DMA_BUFFER_SIZE_BYTES];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -202,9 +203,12 @@ int main(void)
   __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
   HAL_UART_Receive_IT(&huart2, &input_buffer, 1);
   NVIC_EnableIRQ(USART2_IRQn);
-  //__HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
+  __HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
   __HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_TC);
-  HAL_UART_Receive_DMA(&huart3, &midi_usart_buffer, MIDI_PACKET_SIZE);
+  __HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_HT);
+  //HAL_UART_Receive_DMA(&huart3, &midi_usart_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
+
+  HAL_UART_Receive_DMA(&huart3, &midi_dma_test_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
   
   //mixer();
   //synth_output();
@@ -218,6 +222,11 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
     //poll_keybs(); // requires: io expander board
+    static uint16_t lastIndex = 0;
+    uint16_t bytesSinceLastIndex = __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
+    if (lastIndex != bytesSinceLastIndex){
+      lastIndex = bytesSinceLastIndex;
+    }
     update_midi();
 
   }

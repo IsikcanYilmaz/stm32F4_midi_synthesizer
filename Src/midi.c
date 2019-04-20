@@ -4,6 +4,7 @@
 #include "led.h"
 #include "usart.h"
 #include "synth.h"
+#include "dma.h"
 
 // https://www.nyu.edu/classes/bello/FMT_files/9_MIDI_code.pdf // 
 // https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node158.html //
@@ -15,7 +16,13 @@ volatile uint16_t midi_packet_buffer_head = 0;
 volatile uint16_t midi_packet_buffer_tail = 0;
 volatile uint16_t midi_usart_buffer_index = 0;
 
-volatile uint8_t midi_dma_buffer[MIDI_PACKET_SIZE];
+volatile uint16_t midi_dma_buffer_cursor;
+
+volatile uint8_t midi_dma_buffer[MIDI_DMA_BUFFER_SIZE_BYTES];
+
+void midi_init(){
+  //midi_dma_buffer_cursor = __HAL_DMA_GET_COUNTER(&hdma_usart3_rx); // may not be needed
+}
 
 // puts packet in fifo. increments tail
 void enqueue_midi_packet(MIDIPacket_t *p){
@@ -57,12 +64,30 @@ void update_midi(){
     }
   }
 
-#endif
 
   while(midi_packet_buffer_head != midi_packet_buffer_tail){
     process_midi_packet(dequeue_midi_packet());
   }
 
+#endif
+
+  static uint16_t lastIndex = 0;
+  uint16_t bytesSinceLastIndex = MIDI_DMA_BUFFER_SIZE_BYTES - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
+
+  int queuedPackets = abs(lastIndex - bytesSinceLastIndex) / MIDI_PACKET_SIZE;
+  if (queuedPackets){ 
+    while(lastIndex < bytesSinceLastIndex){
+      //MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer[lastIndex];
+      MIDIPacket_t *p = (MIDIPacket_t *) (&midi_dma_test_buffer[lastIndex]);
+      process_midi_packet(p);
+      lastIndex += MIDI_PACKET_SIZE;
+      lastIndex = lastIndex % MIDI_DMA_BUFFER_SIZE_BYTES;
+    }
+  }
+
+  //if (lastIndex != bytesSinceLastIndex){
+  //  lastIndex = bytesSinceLastIndex;
+  //}
   //while( midi_packet_buffer_head / sizeof(MIDIPacket_t) < midi_packet_buffer_tail / sizeof(MIDIPacket_t)){
   //  process_midi_packet(dequeue_midi_packet());
   //}
