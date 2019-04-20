@@ -146,8 +146,8 @@ void note_off(uint8_t key){
       return;
     }
   }
-  osc1.freq = 0;
-  osc2.freq = 0;
+  //osc1.freq = 0;
+  //osc2.freq = 0;
 }
 
 void mixer(){

@@ -4,8 +4,15 @@
 
 #define MIDI_CNFG_USER_BUTTON_DEMO 0
 
+#define MIDI_STATUS_BYTE_FLIP 1
+
+#if MIDI_STATUS_BYTE_FLIP
+#define NOTE_OFF          0x80
+#define NOTE_ON           0x90
+#else
 #define NOTE_OFF          0x90
 #define NOTE_ON           0x80
+#endif
 #define POLY_KEY_PRESSURE 0xA0
 #define CONTROLLER_CHANGE 0xB0
 #define PROGRAM_CHANGE    0xC0

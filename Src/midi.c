@@ -74,14 +74,20 @@ void update_midi(){
   static uint16_t lastIndex = 0;
   uint16_t bytesSinceLastIndex = MIDI_DMA_BUFFER_SIZE_BYTES - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
 
+  // When the dma circular buffer rolls over, we need to realize that this happened.
+  // below if block works around this. may fail. TODO come up with a better solution
+  if (bytesSinceLastIndex < lastIndex){
+    lastIndex = bytesSinceLastIndex;
+  }
+
   int queuedPackets = abs(lastIndex - bytesSinceLastIndex) / MIDI_PACKET_SIZE;
   if (queuedPackets){ 
     while(lastIndex < bytesSinceLastIndex){
-      //MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer[lastIndex];
       MIDIPacket_t *p = (MIDIPacket_t *) (&midi_dma_test_buffer[lastIndex]);
       process_midi_packet(p);
       lastIndex += MIDI_PACKET_SIZE;
-      lastIndex = lastIndex % MIDI_DMA_BUFFER_SIZE_BYTES;
+      if (lastIndex >= MIDI_DMA_BUFFER_SIZE_BYTES)
+        lastIndex = 0;
     }
   }
 
