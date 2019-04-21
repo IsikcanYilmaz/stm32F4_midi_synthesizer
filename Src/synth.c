@@ -32,9 +32,9 @@ void synth_init(){
   }
 #if ADSR_TEST 
   ADSR_t *a = &(voices[0]);
-  adsr_set_attack(a, MIDI_MAX);
-  adsr_set_decay(a, 128);
-  adsr_set_sustain(a, 200);
+  adsr_set_attack(a, 1);
+  adsr_set_decay(a, 4);
+  adsr_set_sustain(a, 80);
   adsr_set_release(a, 128);
 #endif
 
@@ -123,13 +123,11 @@ void make_sound(uint16_t begin, uint16_t end){
     */
     
     y = waveCompute(&osc1, SINE_TABLE, osc1.freq);
-    i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp);
-    LED_SET_CHANNEL(PWM_CHANNEL_RED, 999 * osc1.amp);
+    i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp * SYNTH_OUTPUT_SCALING_FACTOR);
   }
 }
 
 void note_on(uint8_t key, uint8_t vel){
-  LED_SET_CHANNEL(PWM_CHANNEL_GREEN, 999);
   ADSR_t *adsr = &voices[voice_cursor];
   adsr_excite(adsr, key);
   voice_cursor++;
@@ -139,15 +137,12 @@ void note_on(uint8_t key, uint8_t vel){
 }
 
 void note_off(uint8_t key){
-  LED_SET_CHANNEL(PWM_CHANNEL_GREEN, 0);
   for (int i = 0; i < NUM_VOICES; i++){
     if (voices[i].key == key){
       adsr_release(&voices[i]);
       return;
     }
   }
-  //osc1.freq = 0;
-  //osc2.freq = 0;
 }
 
 void mixer(){

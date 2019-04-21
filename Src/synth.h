@@ -6,6 +6,8 @@
 #define BUF_SIZE_DIV2 (2*BUF_SIZE_DIV4)
 #define BUF_SIZE (2*BUF_SIZE_DIV2)
 
+#define SYNTH_OUTPUT_SCALING_FACTOR 0.45
+
 #define MIDI_TO_FREQ(x) 440 * (2^((x-69)/12))
 
 #define NUM_VOICES 1

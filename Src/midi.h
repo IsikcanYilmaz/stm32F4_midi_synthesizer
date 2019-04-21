@@ -7,8 +7,8 @@
 #define MIDI_STATUS_BYTE_FLIP 1
 
 #if MIDI_STATUS_BYTE_FLIP
-#define NOTE_OFF          0x80
-#define NOTE_ON           0x90
+#define NOTE_OFF          0x80 // this works for some reason.
+#define NOTE_ON           0x90 // i thought the specs said note on was 0x80
 #else
 #define NOTE_OFF          0x90
 #define NOTE_ON           0x80

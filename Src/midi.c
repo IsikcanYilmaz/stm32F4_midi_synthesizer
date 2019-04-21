@@ -106,13 +106,11 @@ void process_midi_packet(MIDIPacket_t *p){
       key = p->data_byte1;
       vel = p->data_byte2;
       note_off(key);
-      LED_SET_CHANNEL(PWM_CHANNEL_BLUE,0);
       break;
     case NOTE_ON:
       key = p->data_byte1;
       vel = p->data_byte2;
       note_on(key, vel);
-      LED_SET_CHANNEL(PWM_CHANNEL_BLUE,999);
       break;
     case POLY_KEY_PRESSURE:
 
