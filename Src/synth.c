@@ -32,10 +32,10 @@ void synth_init(){
   }
 #if ADSR_TEST 
   ADSR_t *a = &(voices[0]);
-  adsr_set_attack(a, 1);
-  adsr_set_decay(a, 4);
-  adsr_set_sustain(a, 80);
-  adsr_set_release(a, 128);
+  adsr_set_attack(a, 3);
+  adsr_set_decay(a, 128);
+  adsr_set_sustain(a, 128);
+  adsr_set_release(a, 5);
 #endif
 
   // main oscillator 
@@ -77,7 +77,7 @@ void synth_init(){
   oscillators[0] = &osc1; // TODO make these more general
   //oscillators[1] = osc2;
 
-  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * 2);
+  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * sizeof(uint16_t));
 }
 
 void erase_i2s_buffer(){
@@ -123,7 +123,8 @@ void make_sound(uint16_t begin, uint16_t end){
     */
     
     y = waveCompute(&osc1, SINE_TABLE, osc1.freq);
-    i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp * SYNTH_OUTPUT_SCALING_FACTOR);
+    //i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp * SYNTH_OUTPUT_SCALING_FACTOR);
+    i2s_buffer[pos] = (uint16_t)(40 * (osc1.out + 1) * osc1.amp);
   }
 }
 

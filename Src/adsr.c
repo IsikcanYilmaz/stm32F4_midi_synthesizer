@@ -67,7 +67,7 @@ adsr_update(ADSR_t *adsr){
       break;
     case RELEASE:
       adsr->phase += adsr->releaseRate;
-      adsr->amp -= (adsr->sustainVal) / (adsr->decayTime * SAMPLERATE);
+      adsr->amp -= (adsr->sustainVal) / (adsr->releaseTime * SAMPLERATE);
       if (adsr->amp <= 0){
         adsr->state = DONE;
         adsr->amp = 0;
