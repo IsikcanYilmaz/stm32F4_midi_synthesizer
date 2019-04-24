@@ -1,8 +1,9 @@
 
+
 #define NUM_OSCILLATORS 4
 #define PI 3.14159265358979323846
 #define TAU (2.0 * PI)
-#define BUF_SIZE_DIV4 160 / 2
+#define BUF_SIZE_DIV4 160
 #define BUF_SIZE_DIV2 (2*BUF_SIZE_DIV4)
 #define BUF_SIZE (2*BUF_SIZE_DIV2)
 
@@ -11,6 +12,8 @@
 #define MIDI_TO_FREQ(x) 440 * (2^((x-69)/12))
 
 #define NUM_VOICES 1
+
+#define SYNTH_MONO 
 
 #include "main.h"
 #include "oscillator.h"
