@@ -29,8 +29,13 @@ void synth_init(){
   voice_cursor = 0;
   for (int i = 0; i < NUM_VOICES; i++){
     adsr_init(&voices[i]);
+    ADSR_t *a = &(voices[i]);
+    adsr_set_attack(a, 4);
+    adsr_set_decay(a, 4);
+    adsr_set_sustain(a, 255);
+    adsr_set_release(a, 128);
   }
-#if ADSR_TEST 
+#if ADSR_TEST
   ADSR_t *a = &(voices[0]);
   adsr_set_attack(a, 3);
   adsr_set_decay(a, 128);
@@ -48,13 +53,13 @@ void synth_init(){
   osc1.mul = 1;
 
   // 2. oscillator 
-  osc1.amp = 0.5f;
-  osc1.last_amp = 0.9f;
-  osc1.freq = 0;
-  osc1.phase = 0;
-  osc1.out = 0;
-  osc1.modInd = 0;
-  osc1.mul = 1;
+  osc2.amp = 0.5f;
+  osc2.last_amp = 0.9f;
+  osc2.freq = 0;
+  osc2.phase = 0;
+  osc2.out = 0;
+  osc2.modInd = 0;
+  osc2.mul = 1;
 
   // lfo1 for sine sweep
   lfo1.amp = 0.5f;
@@ -75,7 +80,7 @@ void synth_init(){
   lfo2.mul = 1;
 
   oscillators[0] = &osc1; // TODO make these more general
-  //oscillators[1] = osc2;
+  oscillators[1] = &osc2;
 
   HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * sizeof(uint16_t));
 }
@@ -104,37 +109,42 @@ void make_sound(uint16_t begin, uint16_t end){
 
   uint16_t pos;
   uint16_t *outp;
-  float y;
+  float y[NUM_VOICES];
 
   for (pos = begin; pos < end; pos++){ 
     // UPDATE ADSR MODULES
+    float y_sum = 0;
     for (int i = 0; i < NUM_VOICES; i++){
       adsr_update(&(voices[i]));
       oscillators[i]->amp = voices[i].amp;
+      waveCompute(oscillators[i], SINE_TABLE, oscillators[i]->freq);
+      y_sum += (oscillators[i]->out) * oscillators[i]->amp;
     }
+#ifdef SINE_AMP_FREQ_SWEEP
     // SINE AMPLITUDE AND FREQ SWEEP
-    /*float lfo2_out = 50 * (waveCompute(&lfo2, SINE_TABLE,  0.01) - 0.1);
+    float lfo2_out = 50 * (waveCompute(&lfo2, SINE_TABLE,  0.01) - 0.1);
     lfo1.amp = (lfo2_out < 1) ? lfo2_out : 1;
     lfo1.amp = (osc1.amp > 0.3) ? osc1.amp : 0.3;
-    lfo1.freq = lfo2_out;*/
+    lfo1.freq = lfo2_out;
     //float lfo1_out = 8 * (waveCompute(&lfo1, SINE_TABLE,  lfo1.freq) + 1);
-    /*float lfo1_out = led_signal[led_cursor];
+    float lfo1_out = led_signal[led_cursor];
     osc1.freq = lfo1_out / 8;// * lfo1_out * lfo1_out;
-    */
-    
-    y = waveCompute(&osc1, SINE_TABLE, osc1.freq);
-    //i2s_buffer[pos] = (uint16_t)(128 * (osc1.out + 1) * osc1.amp * SYNTH_OUTPUT_SCALING_FACTOR);
-    i2s_buffer[pos] = (uint16_t)(40 * (osc1.out + 1) * osc1.amp);
+#endif
+
+    //waveCompute(&osc1, SINE_TABLE, osc1.freq);
+    //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
+    //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
+    i2s_buffer[pos] = (int16_t) (50 * y_sum) / NUM_VOICES;
   }
 }
 
 void note_on(uint8_t key, uint8_t vel){
   ADSR_t *adsr = &voices[voice_cursor];
   adsr_excite(adsr, key);
+  float freq = midi_frequency_table[key];
+  oscillators[voice_cursor]->freq = freq;
   voice_cursor++;
   voice_cursor = voice_cursor % NUM_VOICES;
-  float freq = midi_frequency_table[key];
-  osc1.freq = freq;
 }
 
 void note_off(uint8_t key){

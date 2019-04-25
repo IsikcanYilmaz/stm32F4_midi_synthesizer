@@ -175,12 +175,14 @@ int main(void)
   MX_TIM7_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+  led_init();
+  LED_SET_CHANNEL(PWM_CHANNEL_RED, 999); // turn on led to indicate init process
   codec_init();
   //cmd_uart_init();
   io_expander_init();
   internal_tim_init();
   synth_init();
-  led_init();
+
 
   //USBH_LL_Connect(&hUsbHostFS);
   /* USER CODE END 2 */
@@ -214,6 +216,9 @@ int main(void)
   //synth_output();
   HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE);
   bool pressed = false;
+
+  // turn red led off indicating that init is over
+  LED_SET_CHANNEL(PWM_CHANNEL_RED, 0);
   while (1)
   {
 
@@ -222,11 +227,6 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
     //poll_keybs(); // requires: io expander board
-    static uint16_t lastIndex = 0;
-    uint16_t bytesSinceLastIndex = __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
-    if (lastIndex != bytesSinceLastIndex){
-      lastIndex = bytesSinceLastIndex;
-    }
     update_midi();
 
   }

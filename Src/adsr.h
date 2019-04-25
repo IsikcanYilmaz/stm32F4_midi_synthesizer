@@ -2,9 +2,9 @@
 #include "main.h"
 
 #define MIDI_MAX 256.f // floating max value
-#define ADSR_TEST 1
+#define ADSR_TEST 0
 #define ADSR_OFF 0
-#define ADSR_OFF_AMPLITUDE 1
+#define ADSR_OFF_AMPLITUDE 0.25
 #define ADSR_UPPER_LIMIT 10 // seconds
 /*
  *    

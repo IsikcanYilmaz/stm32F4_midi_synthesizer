@@ -82,7 +82,8 @@ void update_midi(){
 
   int queuedPackets = abs(lastIndex - bytesSinceLastIndex) / MIDI_PACKET_SIZE;
   if (queuedPackets){ 
-    while(lastIndex < bytesSinceLastIndex){
+    // While last index is not the head of the circular buff (minus all bytes of an incomplete midi packet)
+    while(lastIndex != (bytesSinceLastIndex - (bytesSinceLastIndex % MIDI_PACKET_SIZE))){
       MIDIPacket_t *p = (MIDIPacket_t *) (&midi_dma_test_buffer[lastIndex]);
       process_midi_packet(p);
       lastIndex += MIDI_PACKET_SIZE;

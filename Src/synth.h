@@ -11,7 +11,7 @@
 
 #define MIDI_TO_FREQ(x) 440 * (2^((x-69)/12))
 
-#define NUM_VOICES 1
+#define NUM_VOICES 2
 
 #define SYNTH_MONO 
 
