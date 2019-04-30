@@ -68,6 +68,7 @@
 #include "cmd_uart.h"
 #include "led.h"
 #include "stm32f4xx_hal_dma.h"
+#include "sinetable.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -176,6 +177,7 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   led_init();
+  sinetable_init();
   LED_SET_CHANNEL(PWM_CHANNEL_RED, 999); // turn on led to indicate init process
   codec_init();
   //cmd_uart_init();

@@ -1,7 +1,19 @@
 // credit to Xavier Halgand
 
 #include "sinetable.h"
+#include <math.h>
+#if COMPUTE_SINETABLE
+float_t sinetable[SINETABLE_SIZE];
 
+void sinetable_init(){
+  float timeDifference = _2PI/SINETABLE_SIZE;
+  for (int i = 0; i < SINETABLE_SIZE; i++){
+    sinetable[i] = sin(i * timeDifference);
+  }
+}
+
+#else
+void sinetable_init() {}
 const float_t sinetable[1025] =
 {
 
@@ -136,4 +148,4 @@ const float_t sinetable[1025] =
 		, 0
 
 };
-
+#endif

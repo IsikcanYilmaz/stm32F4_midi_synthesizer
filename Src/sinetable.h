@@ -7,14 +7,21 @@
 
 /*-------------------------------------------------------------------------------*/
 
-#define SINETABLE_SIZE 	1024
+#define SINETABLE_SIZE 1024 * 2
 #define _2PI    		6.283185307f
 #define ALPHA			(SINETABLE_SIZE/_2PI)
 
 /*-------------------------------------------------------------------------------*/
 
-extern const  float_t sinetable[1025];
+#define COMPUTE_SINETABLE 0
 
+#if COMPUTE_SINETABLE
+extern float_t sinetable[SINETABLE_SIZE];
+#else
+extern const  float_t sinetable[1025];
+#endif
+
+void sinetable_init();
 /*----------------------------------------------------------------------------*/
 
 #endif // __sinetable_h_

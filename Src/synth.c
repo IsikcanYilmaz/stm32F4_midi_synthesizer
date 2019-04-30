@@ -30,10 +30,10 @@ void synth_init(){
   for (int i = 0; i < NUM_VOICES; i++){
     adsr_init(&voices[i]);
     ADSR_t *a = &(voices[i]);
-    adsr_set_attack(a, 4);
-    adsr_set_decay(a, 4);
+    adsr_set_attack(a, 0);
+    adsr_set_decay(a, 0);
     adsr_set_sustain(a, 255);
-    adsr_set_release(a, 128);
+    adsr_set_release(a, 10);
   }
 #if ADSR_TEST
   ADSR_t *a = &(voices[0]);
