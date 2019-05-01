@@ -1,4 +1,6 @@
 
+#ifndef __SYNTH_H_
+#define __SYNTH_H_
 
 #define NUM_OSCILLATORS 4
 #define PI 3.14159265358979323846
@@ -11,13 +13,15 @@
 
 #define MIDI_TO_FREQ(x) 440 * (2^((x-69)/12))
 
-#define NUM_VOICES 2
 
 #define SYNTH_MONO 
 
 #include "main.h"
 #include "oscillator.h"
 
+#ifndef SAMPLERATE
+#error "ASDQWE!@#"
+#endif
 
 
 extern Oscillator_t osc1;
@@ -44,3 +48,6 @@ float wave_compute(uint8_t sound, float freq);
 void mixer();
 
 void make_sound_osc();
+
+
+#endif // __SYNTH_H_

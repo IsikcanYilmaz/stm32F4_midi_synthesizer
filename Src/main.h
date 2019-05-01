@@ -140,13 +140,15 @@
 #define LED_DEMO_MAX_PWM 8192 * 4
 #define LED_DEMO_DELAY_THRESH 0
 
+#define NUM_VOICES 4
 #define SAMPLERATE (48000)
 #define Fs ((float)(SAMPLERATE)) // sample rate
 #define Ts (1.f/Fs) // sample period
 #define _PI (3.14159265f)
 #define _2PI (6.283185307f)
 
-#define DMA_TEST_BUFFER_SIZE 16 * 3 // SAME AS MIDI_DMA_BUFFER_SIZE_BYTES 
+
+#define DMA_TEST_BUFFER_SIZE 128 * 3 // SAME AS MIDI_DMA_BUFFER_SIZE_BYTES 
 extern uint8_t midi_dma_test_buffer[DMA_TEST_BUFFER_SIZE];
 
 /* USER CODE END Private defines */
