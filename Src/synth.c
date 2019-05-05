@@ -15,6 +15,8 @@ uint16_t counters[NUM_OSCILLATORS], output;
 
 Oscillator_t osc1;
 Oscillator_t osc2;
+Oscillator_t osc3;
+Oscillator_t osc4;
 
 Oscillator_t lfo1;
 Oscillator_t lfo2;
@@ -30,17 +32,17 @@ void synth_init(){
   for (int i = 0; i < NUM_VOICES; i++){
     adsr_init(&voices[i]);
     ADSR_t *a = &(voices[i]);
-    adsr_set_attack(a, 16);
-    adsr_set_decay(a, 0);
+    adsr_set_attack(a, 1);
+    adsr_set_decay(a, 128);
     adsr_set_sustain(a, 255);
-    adsr_set_release(a, 10);
+    adsr_set_release(a, 16);
   }
 #if ADSR_TEST
   ADSR_t *a = &(voices[0]);
-  adsr_set_attack(a, 3);
+  adsr_set_attack(a, 0);
   adsr_set_decay(a, 128);
   adsr_set_sustain(a, 128);
-  adsr_set_release(a, 5);
+  adsr_set_release(a, 128);
 #endif
 
   // main oscillator 
@@ -81,6 +83,8 @@ void synth_init(){
 
   oscillators[0] = &osc1; // TODO make these more general
   oscillators[1] = &osc2;
+  oscillators[2] = &osc3;
+  oscillators[3] = &osc4;
 
   HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * sizeof(uint16_t));
 }
@@ -120,6 +124,7 @@ void make_sound(uint16_t begin, uint16_t end){
       waveCompute(oscillators[i], SINE_TABLE, oscillators[i]->freq);
       y_sum += (oscillators[i]->out) * oscillators[i]->amp;
     }
+
 #ifdef SINE_AMP_FREQ_SWEEP
     // SINE AMPLITUDE AND FREQ SWEEP
     float lfo2_out = 50 * (waveCompute(&lfo2, SINE_TABLE,  0.01) - 0.1);
@@ -139,10 +144,21 @@ void make_sound(uint16_t begin, uint16_t end){
 }
 
 void note_on(uint8_t key, uint8_t vel){
+  /*
+   * Have NUM_VOICES number of voices. when you get a note on, 
+   * put it on the linked list. when you run out of voices, 
+   * head of the list will be the voice to be used. if a voice's 
+   * note turns off it will set the next pointer of the voice behind it,
+   * to the voice next to itself. (youll see)
+   */
   ADSR_t *adsr = &voices[voice_cursor];
   adsr_excite(adsr, key);
   float freq = midi_frequency_table[key];
-  oscillators[voice_cursor]->freq = freq;
+  //oscillators[voice_cursor]->freq = freq;
+  
+  // SELECT NEXT INDEX
+  
+  
   voice_cursor++;
   voice_cursor = voice_cursor % NUM_VOICES;
 }

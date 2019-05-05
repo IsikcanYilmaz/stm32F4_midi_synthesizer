@@ -4,7 +4,7 @@
 
 
 adsr_init(ADSR_t *adsr){
-  adsr->state = OFF;
+  adsr->state = DONE;
   adsr->phase = 0;
   adsr->key = 0;
 }
