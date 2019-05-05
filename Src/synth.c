@@ -154,7 +154,7 @@ void note_on(uint8_t key, uint8_t vel){
   ADSR_t *adsr = &voices[voice_cursor];
   adsr_excite(adsr, key);
   float freq = midi_frequency_table[key];
-  //oscillators[voice_cursor]->freq = freq;
+  oscillators[voice_cursor]->freq = freq;
   
   // SELECT NEXT INDEX
   
