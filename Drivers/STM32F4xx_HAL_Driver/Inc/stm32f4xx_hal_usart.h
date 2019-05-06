@@ -489,8 +489,8 @@ HAL_StatusTypeDef HAL_USART_Abort(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_Abort_IT(USART_HandleTypeDef *husart);
 
 void HAL_USART_IRQHandler(USART_HandleTypeDef *husart);
-//void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart);
-//void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart);
+void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart);
+void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart);
 void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart);
 void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart);
 void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart);

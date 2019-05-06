@@ -56,7 +56,7 @@
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
-#include "usb_host.h"
+#include "usb_device.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
@@ -84,7 +84,6 @@ uint8_t midi_dma_test_buffer[MIDI_DMA_BUFFER_SIZE_BYTES];
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void MX_USB_HOST_Process(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -160,7 +159,6 @@ int main(void)
   MX_I2C1_Init();
   MX_I2S3_Init();
   MX_TIM1_Init();
-  MX_USB_HOST_Init();
   MX_TIM4_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
@@ -175,18 +173,18 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM7_Init();
   MX_USART3_UART_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   led_init();
   sinetable_init();
   LED_SET_CHANNEL(PWM_CHANNEL_RED, 999); // turn on led to indicate init process
   codec_init();
-  //cmd_uart_init();
+  cmd_uart_init();
   io_expander_init();
   internal_tim_init();
   synth_init();
 
 
-  //USBH_LL_Connect(&hUsbHostFS);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -225,12 +223,10 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
-    MX_USB_HOST_Process();
 
   /* USER CODE BEGIN 3 */
     //poll_keybs(); // requires: io expander board
     update_midi();
-
   }
   /* USER CODE END 3 */
 

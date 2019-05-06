@@ -7,6 +7,7 @@
 #include "led.h"
 #include "adsr.h"
 #include "frequency_table.h"
+#include "cmd_uart.h"
 #include <math.h>
 #include <string.h>
 
@@ -159,17 +160,22 @@ void note_on(uint8_t key, uint8_t vel){
   // SELECT NEXT INDEX
   
   
+  print("NOTE %d ON. ASSIGNING TO VOICE # %d\n", key, voice_cursor);
   voice_cursor++;
   voice_cursor = voice_cursor % NUM_VOICES;
+  
+
 }
 
 void note_off(uint8_t key){
   for (int i = 0; i < NUM_VOICES; i++){
     if (voices[i].key == key){
+      print("NOTE %d OFF. WAS AT VOICE # %d\n", key, i);
       adsr_release(&voices[i]);
       return;
     }
   }
+  print("NOTE %d OFF. VOICE NOT FOUND\n", key);
 }
 
 void mixer(){

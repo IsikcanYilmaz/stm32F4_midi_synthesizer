@@ -2,6 +2,7 @@
 
 #include "cmd_uart.h"
 #include "stm32f4xx_hal_usart.h"
+#include "usbd_cdc_if.h"
 #include "usart.h"
 
 #include <string.h>
@@ -12,7 +13,11 @@ char output_buffer[USART_OUT_BUFFER_SIZE];
 uint16_t input_buffer_cursor = 0;
 
 void cmd_uart_init(){
+#if USB_CDC_UART
+
+#else
   cmd_uart_interrupt_enable(true);
+#endif
 }
 
 
@@ -53,10 +58,10 @@ void cmd_uart_isr(){
     
     // IF NEW LINE THIS IS A COMMAND
     if (data == (uint8_t)'\n'){
-      print("COMMAND %s \n", input_buffer);
+      //print("COMMAND %s \n", input_buffer);
       memset(&input_buffer, 0, USART_IN_BUFFER_SIZE);
     } else {
-      print("char %c 0x%x\n", data, data);
+      //print("char %c 0x%x\n", data, data);
     }
 
     // WRITE TO INPUT BUFFER 
