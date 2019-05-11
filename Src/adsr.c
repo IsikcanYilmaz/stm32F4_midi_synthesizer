@@ -4,39 +4,40 @@
 
 
 adsr_init(ADSR_t *adsr){
-  adsr->state = DONE;
+  adsr->state = ADSR_DONE;
   adsr->phase = 0;
   adsr->key = 0;
 }
 
 adsr_excite(ADSR_t *adsr, uint8_t key){
-  adsr->state = ATTACK;
+  adsr->state = ADSR_DECAY;
   adsr->phase = 0;
   adsr->key = key;
-  adsr->freq = adsr->values[ATTACK];
+  adsr->freq = adsr->values[ADSR_ATTACK];
+  adsr->amp = ADSR_ADSR_OFF_AMPLITUDE;
 }
 
 adsr_release(ADSR_t *adsr){
-  adsr->state = RELEASE;
+  adsr->state = ADSR_RELEASE;
 }
 
 adsr_update(ADSR_t *adsr){
-  if (adsr->state == DONE){
+  if (adsr->state == ADSR_DONE){
     return;
   }
-#if ADSR_OFF
+#if ADSR_ADSR_OFF
   switch(adsr->state){
-    case ATTACK:
-    case DECAY:
-    case SUSTAIN:
-      adsr->amp = ADSR_OFF_AMPLITUDE;
+    case ADSR_ATTACK:
+    case ADSR_DECAY:
+    case ADSR_SUSTAIN:
+      adsr->amp = ADSR_ADSR_OFF_AMPLITUDE;
       break;
-    case RELEASE:
+    case ADSR_RELEASE:
       adsr->amp = 0;
       adsr->state++;
-    case DONE:
+    case ADSR_DONE:
       break;
-    case OFF:
+    case ADSR_OFF:
       break;
     default:
       break;
@@ -44,38 +45,38 @@ adsr_update(ADSR_t *adsr){
 
 #else 
   switch(adsr->state){
-    case ATTACK:
+    case ADSR_ATTACK:
       adsr->phase += adsr->attackRate;
       adsr->amp = adsr->phase;
       if (adsr->phase >= 1.0){
-        adsr->state = DECAY;
+        adsr->state = ADSR_DECAY;
         adsr->amp = 1.0;
         adsr->phase = 0;
       }
       break;
-    case DECAY:
+    case ADSR_DECAY:
       adsr->phase += adsr->decayRate;
       adsr->amp -= (1.0 - adsr->sustainVal) / (adsr->decayTime * SAMPLERATE);
       if (adsr->amp <= adsr->sustainVal){
-        adsr->state = SUSTAIN;
+        adsr->state = ADSR_SUSTAIN;
         adsr->amp = adsr->sustainVal;
         adsr->phase = 0;
       }
       break;
-    case SUSTAIN:
+    case ADSR_SUSTAIN:
       adsr->amp = adsr->sustainVal;
       break;
-    case RELEASE:
+    case ADSR_RELEASE:
       adsr->phase += adsr->releaseRate;
       adsr->amp -= (adsr->sustainVal) / (adsr->releaseTime * SAMPLERATE);
       if (adsr->amp <= 0){
-        adsr->state = DONE;
+        adsr->state = ADSR_DONE;
         adsr->amp = 0;
       }
       break;
-    case DONE:
+    case ADSR_DONE:
       break;
-    case OFF:
+    case ADSR_OFF:
       break;
   }
 #endif

@@ -3,8 +3,8 @@
 
 #define MIDI_MAX 256.f // floating max value
 #define ADSR_TEST 0
-#define ADSR_OFF 0
-#define ADSR_OFF_AMPLITUDE 0.25
+#define ADSR_ADSR_OFF 0
+#define ADSR_ADSR_OFF_AMPLITUDE 0.25
 #define ADSR_UPPER_LIMIT 10 // seconds
 /*
  *    
@@ -14,18 +14,18 @@
  */
 
 typedef enum ADSRState{
-  // ATTACK is the time it takes to go to amplitude value 1 from 0
-  ATTACK = 0,
-  // DECAY is the time it takes to go to the SUSTAIN amplitude from as high as we got during ATTACK (<=1)
-  DECAY,
-  // SUSTAIN is the LEVEL of amplitude to sustain after DECAY is complete WHILE note is on
-  SUSTAIN,
-  // RELEASE is the time it takes to go to 0 amplitude from SUSTAIN level of amplitude after note off
-  RELEASE,
-  // DONE. ADSR module is idle
-  DONE,
-  // OFF. module will only output 1.0
-  OFF
+  // ADSR_ATTACK is the time it takes to go to amplitude value 1 from 0
+  ADSR_ATTACK = 0,
+  // ADSR_DECAY is the time it takes to go to the ADSR_SUSTAIN amplitude from as high as we got during ADSR_ATTACK (<=1)
+  ADSR_DECAY,
+  // ADSR_SUSTAIN is the LEVEL of amplitude to sustain after ADSR_DECAY is complete WHILE note is on
+  ADSR_SUSTAIN,
+  // ADSR_RELEASE is the time it takes to go to 0 amplitude from ADSR_SUSTAIN level of amplitude after note off
+  ADSR_RELEASE,
+  // ADSR_DONE. ADSR module is idle
+  ADSR_DONE,
+  // ADSR_OFF. module will only output 1.0
+  ADSR_OFF
 }ADSRState_e;
 
 typedef struct ADSR{

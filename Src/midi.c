@@ -5,6 +5,7 @@
 #include "usart.h"
 #include "synth.h"
 #include "dma.h"
+#include "cmd_uart.h"
 
 // https://www.nyu.edu/classes/bello/FMT_files/9_MIDI_code.pdf // 
 // https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node158.html //
@@ -74,10 +75,31 @@ void update_midi(){
   static uint16_t lastIndex = 0;
   uint16_t bytesSinceLastIndex = MIDI_DMA_BUFFER_SIZE_BYTES - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
 
-  // When the dma circular buffer rolls over, we need to realize that this happened.
-  // below if block works around this. may fail. TODO come up with a better solution
+  // Special case where DMA Buffer rolls over. In that case, get byte by byte from where we left off,
+  // until where the dma buffer counter is at. I expect to handle only one packet in this block. if 
+  // there are more, that may be a problem, i.e. line 92
   if (bytesSinceLastIndex < lastIndex){
-    lastIndex = bytesSinceLastIndex;
+    print("DMA BUFFER ROLLED OVER. bytesSinceLastIndex=%d lastIndex=%d/%d\n", bytesSinceLastIndex, lastIndex, MIDI_DMA_BUFFER_SIZE_BYTES);
+    MIDIPacket_t p;
+    uint8_t i = 0;
+    uint16_t lastByteIndex = lastIndex;
+    do {
+      uint8_t *p_bytes = (uint8_t *) &p;
+      if (i > 2){
+        print("DMA BUFFER ROLL OVER TOO LARGE\n");
+        lastByteIndex = 0;
+        break;
+      }
+      p_bytes[i] = midi_dma_test_buffer[lastByteIndex];
+      i++;
+      lastByteIndex++;
+      if (lastByteIndex == MIDI_DMA_BUFFER_SIZE_BYTES){
+        lastByteIndex = 0;
+      }
+    } while(lastByteIndex != bytesSinceLastIndex);
+    lastIndex = lastByteIndex;
+    process_midi_packet(&p);
+    return;
   }
 
   int queuedPackets = abs(lastIndex - bytesSinceLastIndex) / MIDI_PACKET_SIZE;
@@ -87,8 +109,11 @@ void update_midi(){
       MIDIPacket_t *p = (MIDIPacket_t *) (&midi_dma_test_buffer[lastIndex]);
       process_midi_packet(p);
       lastIndex += MIDI_PACKET_SIZE;
-      if (lastIndex >= MIDI_DMA_BUFFER_SIZE_BYTES)
+      if (lastIndex >= MIDI_DMA_BUFFER_SIZE_BYTES){
         lastIndex = 0;
+        print("%s:%d lastIndex >= DMA_BUFFER_SIZE_BYTES\n");
+        //break;
+      }
     }
   }
 
@@ -102,6 +127,7 @@ void update_midi(){
 
 void process_midi_packet(MIDIPacket_t *p){
   uint8_t key, vel;
+  //print("%s PROCESSING MIDI PACKET %x %x %x\n", __FUNCTION__, p->status_byte, p->data_byte1, p->data_byte2);
   switch(p->status_byte & 0xf0){
     case NOTE_OFF:
       key = p->data_byte1;

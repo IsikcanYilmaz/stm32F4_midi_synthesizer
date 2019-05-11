@@ -33,18 +33,11 @@ void synth_init(){
   for (int i = 0; i < NUM_VOICES; i++){
     adsr_init(&voices[i]);
     ADSR_t *a = &(voices[i]);
-    adsr_set_attack(a, 1);
+    adsr_set_attack(a, 0);
     adsr_set_decay(a, 128);
     adsr_set_sustain(a, 255);
-    adsr_set_release(a, 16);
+    adsr_set_release(a, 0);
   }
-#if ADSR_TEST
-  ADSR_t *a = &(voices[0]);
-  adsr_set_attack(a, 0);
-  adsr_set_decay(a, 128);
-  adsr_set_sustain(a, 128);
-  adsr_set_release(a, 128);
-#endif
 
   // main oscillator 
   osc1.amp = 0.5f;
@@ -63,6 +56,24 @@ void synth_init(){
   osc2.out = 0;
   osc2.modInd = 0;
   osc2.mul = 1;
+
+  // 3. oscillator 
+  osc3.amp = 0.5f;
+  osc3.last_amp = 0.9f;
+  osc3.freq = 0;
+  osc3.phase = 0;
+  osc3.out = 0;
+  osc3.modInd = 0;
+  osc3.mul = 1;
+
+  // 4. oscillator 
+  osc4.amp = 0.5f;
+  osc4.last_amp = 0.9f;
+  osc4.freq = 0;
+  osc4.phase = 0;
+  osc4.out = 0;
+  osc4.modInd = 0;
+  osc4.mul = 1;
 
   // lfo1 for sine sweep
   lfo1.amp = 0.5f;
@@ -140,29 +151,42 @@ void make_sound(uint16_t begin, uint16_t end){
     //waveCompute(&osc1, SINE_TABLE, osc1.freq);
     //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
     //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
+    
     i2s_buffer[pos] = (int16_t) (50 * y_sum) / NUM_VOICES;
   }
 }
 
 void note_on(uint8_t key, uint8_t vel){
-  /*
-   * Have NUM_VOICES number of voices. when you get a note on, 
-   * put it on the linked list. when you run out of voices, 
-   * head of the list will be the voice to be used. if a voice's 
-   * note turns off it will set the next pointer of the voice behind it,
-   * to the voice next to itself. (youll see)
-   */
-  ADSR_t *adsr = &voices[voice_cursor];
-  adsr_excite(adsr, key);
-  float freq = midi_frequency_table[key];
-  oscillators[voice_cursor]->freq = freq;
+  ADSR_t *adsr = NULL;
+
+  // FIND A VOICE THATS UNUSED
+  // IF ALL USED <DECIDE>
+  for (int i = 0; i < NUM_VOICES; i++){
+    //print("VOICE %d STATE %d/%d\n", i, voices[i].state, NUM_VOICES);
+    if (voices[i].state == ADSR_DONE){
+      adsr = &voices[i];
+      voice_cursor = i;
+      break;
+    }
+  }
+  //adsr->state = ADSR_SUSTAIN; // DELET DIS
+  //adsr->key = key;
+  print("NOTE ON %d. VOICE %d. ADSR %x STATE %d\n", key, voice_cursor, adsr, adsr->state);
+  //return; 
   
-  // SELECT NEXT INDEX
-  
-  
-  print("NOTE %d ON. ASSIGNING TO VOICE # %d\n", key, voice_cursor);
-  voice_cursor++;
-  voice_cursor = voice_cursor % NUM_VOICES;
+  //adsr seems to be broken with NUM_VOICES == 4.
+  //like when i set somethings state to attack
+  //it freezes. bad. 
+  //
+  if (adsr == NULL){ // ALL ARE USED
+    //print("ALL VOICES USED\n");
+    return; // FOR NOW, RETURN
+  } else {
+    adsr_excite(adsr, key);
+    float freq = midi_frequency_table[key];
+    oscillators[voice_cursor]->freq = freq;
+    //print("NOTE ON %d FREQ %f. ASSIGNING TO VOICE # %d\n", key, freq, voice_cursor);
+  }
   
 
 }
@@ -175,7 +199,7 @@ void note_off(uint8_t key){
       return;
     }
   }
-  print("NOTE %d OFF. VOICE NOT FOUND\n", key);
+  //print("NOTE %d OFF. VOICE NOT FOUND\n", key);
 }
 
 void mixer(){
