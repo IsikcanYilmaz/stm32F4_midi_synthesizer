@@ -85,10 +85,10 @@ void update_midi(){
     uint16_t lastByteIndex = lastIndex;
     do {
       uint8_t *p_bytes = (uint8_t *) &p;
-      if (i > 2){
+      if (i == 3){
         print("DMA BUFFER ROLL OVER TOO LARGE\n");
-        lastByteIndex = 0;
-        break;
+        process_midi_packet(&p);
+        i = 0;
       }
       p_bytes[i] = midi_dma_test_buffer[lastByteIndex];
       i++;
@@ -116,13 +116,6 @@ void update_midi(){
       }
     }
   }
-
-  //if (lastIndex != bytesSinceLastIndex){
-  //  lastIndex = bytesSinceLastIndex;
-  //}
-  //while( midi_packet_buffer_head / sizeof(MIDIPacket_t) < midi_packet_buffer_tail / sizeof(MIDIPacket_t)){
-  //  process_midi_packet(dequeue_midi_packet());
-  //}
 }
 
 void process_midi_packet(MIDIPacket_t *p){
