@@ -33,10 +33,10 @@ void synth_init(){
   for (int i = 0; i < NUM_VOICES; i++){
     adsr_init(&voices[i]);
     ADSR_t *a = &(voices[i]);
-    adsr_set_attack(a, 1);
-    adsr_set_decay(a, 10);
-    adsr_set_sustain(a, 255);
-    adsr_set_release(a, 50);
+    adsr_set_attack(a, 0);
+    adsr_set_decay(a, 0);
+    adsr_set_sustain(a, 256);
+    adsr_set_release(a, 0);
   }
 
   // main oscillator 
@@ -158,36 +158,51 @@ void make_sound(uint16_t begin, uint16_t end){
 
 void note_on(uint8_t key, uint8_t vel){
   ADSR_t *adsr = NULL;
+  static uint32_t noteNum = 0;
 
   // FIND A VOICE THATS UNUSED
   // IF ALL USED <DECIDE>
+  uint32_t oldest = noteNum;
+  uint8_t oldestVoiceIdx = 0;
   for (int i = 0; i < NUM_VOICES; i++){
     //print("VOICE %d STATE %d/%d\n", i, voices[i].state, NUM_VOICES);
+
+    // RECORD THE OLDEST HIT NOTE/ADSR OBJ
+    if (voices[i].noteOnNum < oldest){
+      oldest= voices[i].noteOnNum;
+      oldestVoiceIdx = i;
+    }
+
+    // NOTE ALREADY ON IN A VOICE. RETRIGGER IT
+    if (voices[i].key == key && voices[i].state < ADSR_DONE){
+      adsr = &voices[i];
+      voice_cursor = i;
+      break;
+    }
+    
+    // FREE VOICE SLOT FOUND
     if (voices[i].state == ADSR_DONE){
       adsr = &voices[i];
       voice_cursor = i;
       break;
     }
   }
-  //adsr->state = ADSR_SUSTAIN; // DELET DIS
-  //adsr->key = key;
-  print("NOTE ON %d. VOICE %d. ADSR %x STATE %d\n", key, voice_cursor, adsr, adsr->state);
-  //return; 
   
   //adsr seems to be broken with NUM_VOICES == 4.
   //like when i set somethings state to attack
   //it freezes. bad. 
   //
   if (adsr == NULL){ // ALL ARE USED
-    //print("ALL VOICES USED\n");
-    return; // FOR NOW, RETURN
-  } else {
-    adsr_excite(adsr, key);
-    float freq = midi_frequency_table[key];
-    oscillators[voice_cursor]->freq = freq;
-    //print("NOTE ON %d FREQ %f. ASSIGNING TO VOICE # %d\n", key, freq, voice_cursor);
+    adsr = &voices[oldestVoiceIdx];
   }
+  adsr_excite(adsr, key);
+  adsr->noteOnNum = noteNum;
+  noteNum++;
+  float freq = midi_frequency_table[key];
+  oscillators[voice_cursor]->freq = freq;
+  //print("NOTE ON %d FREQ %f. ASSIGNING TO VOICE # %d\n", key, freq, voice_cursor);
   
+  print("NOTE ON %d. VOICE %d. ADSR %x STATE %d\n", key, voice_cursor, adsr, adsr->state);
 
 }
 

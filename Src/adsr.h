@@ -3,8 +3,8 @@
 
 #define MIDI_MAX 256.f // floating max value
 #define ADSR_TEST 0
-#define ADSR_ADSR_OFF 0
-#define ADSR_ADSR_OFF_AMPLITUDE 0.75
+#define ADSR_ADSR_OFF 1
+#define ADSR_ADSR_OFF_AMPLITUDE 1
 #define ADSR_UPPER_LIMIT 10 // seconds
 /*
  *    
@@ -58,6 +58,8 @@ typedef struct ADSR{
 
   float decayAmpRate;
   float releaseAmpRate;
+
+  uint32_t noteOnNum;
 
 } ADSR_t;
 
