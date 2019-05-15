@@ -11,7 +11,7 @@
 #include <math.h>
 #include <string.h>
 
-uint16_t i2s_buffer[BUF_SIZE]; // THE i2s buffer
+int16_t i2s_buffer[BUF_SIZE]; // THE i2s buffer
 uint16_t counters[NUM_OSCILLATORS], output;
 
 Oscillator_t osc1;
@@ -34,9 +34,9 @@ void synth_init(){
     adsr_init(&voices[i]);
     ADSR_t *a = &(voices[i]);
     adsr_set_attack(a, 0);
-    adsr_set_decay(a, 0);
+    adsr_set_decay(a, 1);
     adsr_set_sustain(a, 256);
-    adsr_set_release(a, 0);
+    adsr_set_release(a, 128);
   }
 
   // main oscillator 
@@ -152,7 +152,7 @@ void make_sound(uint16_t begin, uint16_t end){
     //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
     //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
     
-    i2s_buffer[pos] = (int16_t) (50 * y_sum) / NUM_VOICES;
+    i2s_buffer[pos] = (int16_t) (50 * y_sum) ;
   }
 }
 
