@@ -152,7 +152,7 @@ void make_sound(uint16_t begin, uint16_t end){
     //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
     //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
     
-    i2s_buffer[pos] = (int16_t) (50 * y_sum) ;
+    i2s_buffer[pos] = (int16_t) (0x006f * y_sum) / NUM_VOICES; // TODO find a good scaling down factor for n channels
   }
 }
 
@@ -194,6 +194,8 @@ void note_on(uint8_t key, uint8_t vel){
   //
   if (adsr == NULL){ // ALL ARE USED
     adsr = &voices[oldestVoiceIdx];
+    voice_cursor = oldestVoiceIdx;
+    //return; // COMMENT THIS LINE TO HAVE VOICE STEALING
   }
   adsr_excite(adsr, key);
   adsr->noteOnNum = noteNum;
@@ -202,7 +204,7 @@ void note_on(uint8_t key, uint8_t vel){
   oscillators[voice_cursor]->freq = freq;
   //print("NOTE ON %d FREQ %f. ASSIGNING TO VOICE # %d\n", key, freq, voice_cursor);
   
-  print("NOTE ON %d. VOICE %d. ADSR %x STATE %d\n", key, voice_cursor, adsr, adsr->state);
+  print("NOTE ON %d. VOICE %d. ADSR %x STATE %d FREQ %f TABLEFREQ %f\n", key, voice_cursor, adsr, adsr->state, oscillators[voice_cursor]->freq, freq);
 
 }
 

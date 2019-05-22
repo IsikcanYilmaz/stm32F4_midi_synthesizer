@@ -11,7 +11,7 @@
 
 /*-------------------------------------------------------------------------------*/
 
-#define COMPUTE_SINETABLE 0
+#define COMPUTE_SINETABLE 1
 
 #if COMPUTE_SINETABLE
 #define SINETABLE_SIZE (1024 * 2)

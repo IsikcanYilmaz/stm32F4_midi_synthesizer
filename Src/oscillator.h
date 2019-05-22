@@ -15,8 +15,9 @@ typedef struct Oscillator {
 
 enum Timbre {
   SINE = 0,
-  SQUARE,
   SAWTOOTH,
+  SQUARE,
+  SAWTOOTH_TABLE,
   SINE_TABLE
 };
 
@@ -29,6 +30,7 @@ float oscillatorSine(Oscillator_t *osc);
 float oscillatorSineTable(Oscillator_t *osc);
 float oscillatorSquare(Oscillator_t *osc);
 float oscillatorSawtooth(Oscillator_t *osc);
+float oscillatorSawtoothTable(Oscillator_t *osc);
 
 float waveCompute(Oscillator_t *osc, enum Timbre sound, float freq);
 

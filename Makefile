@@ -79,6 +79,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
 Src/led.c \
 Src/oscillator.c \
 Src/sinetable.c \
+Src/sawtoothtable.c \
 Src/adsr.c \
 Src/usb_device.c \
 Src/usbd_conf.c \

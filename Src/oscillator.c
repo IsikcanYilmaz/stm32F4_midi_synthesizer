@@ -1,6 +1,7 @@
 
 #include "oscillator.h"
 #include "sinetable.h"
+#include "sawtoothtable.h"
 #include "tim.h"
 #include "math.h"
 
@@ -43,12 +44,29 @@ float waveCompute(Oscillator_t *osc, enum Timbre sound, float freq){
     case SINE_TABLE: // sine from hardcoded sine wavetable
       y = AMP_MULTIPLIER * oscillatorSineTable(osc);
       break;
+
+    case SAWTOOTH_TABLE:
+      y = AMP_MULTIPLIER * oscillatorSawtoothTable(osc);
+      break;
+
     default:
       y = 0;
       break;
   }
   return y;
 }
+
+float oscillatorSawtoothTable(Oscillator_t *osc){
+  while (osc->phase < 0){ // keep phase in [0, 2pi]
+    osc->phase += _2PI;
+  }
+  while (osc->phase >= _2PI){
+    osc->phase -= _2PI;
+  }
+  osc->out = osc->amp * sawtoothtable[(int)round(ALPHA * osc->phase)];
+  osc->phase += _2PI * Ts * osc->freq; // increment phase
+  return osc->out;
+} // TODO This could be done more elegantly. i.e. shorten the code
 
 float oscillatorSineTable(Oscillator_t *osc){ // Table sine
   while (osc->phase < 0){ // keep phase in [0, 2pi] // why tho?
@@ -57,7 +75,6 @@ float oscillatorSineTable(Oscillator_t *osc){ // Table sine
   while (osc->phase >= _2PI){
     osc->phase -= _2PI;
   }
-
   osc->out = osc->amp * sinetable[(int)round(ALPHA * osc->phase)];
   osc->phase += _2PI * Ts * osc->freq; // increment phase
   return osc->out;

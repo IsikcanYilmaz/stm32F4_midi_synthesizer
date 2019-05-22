@@ -177,6 +177,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   led_init();
   sinetable_init();
+  sawtoothtable_init();
   LED_SET_CHANNEL(PWM_CHANNEL_RED, 999); // turn on led to indicate init process
   codec_init();
   cmd_uart_init();
