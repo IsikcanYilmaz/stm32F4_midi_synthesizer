@@ -133,7 +133,7 @@ void make_sound(uint16_t begin, uint16_t end){
     for (int i = 0; i < NUM_VOICES; i++){
       adsr_update(&(voices[i]));
       oscillators[i]->amp = voices[i].amp;
-      waveCompute(oscillators[i], SINE_TABLE, oscillators[i]->freq);
+      waveCompute(oscillators[i], SAWTOOTH_TABLE, oscillators[i]->freq);
       y_sum += (oscillators[i]->out) * oscillators[i]->amp;
     }
 
@@ -151,8 +151,10 @@ void make_sound(uint16_t begin, uint16_t end){
     //waveCompute(&osc1, SINE_TABLE, osc1.freq);
     //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
     //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
-    
-    i2s_buffer[pos] = (int16_t) (0x006f * y_sum) / NUM_VOICES; // TODO find a good scaling down factor for n channels
+    int16_t y_scaled = (int16_t) (y_sum * 0x0fff);
+    int16_t y_flipped = ((y_scaled & 0x00ff) << (2 * 4)) | ((y_scaled & 0xff00) >> (2 * 4));
+    //i2s_buffer[pos] = (y_scaled); // TODO find a good scaling down factor for n channels
+    i2s_buffer[pos] = (y_flipped);
   }
 }
 
