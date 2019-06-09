@@ -140,8 +140,8 @@
 #define LED_DEMO_MAX_PWM 1024
 #define LED_DEMO_DELAY_THRESH 0
 
-#define NUM_VOICES 3
-#define SAMPLERATE (48000) // 48kHz
+#define NUM_VOICES 4
+#define SAMPLERATE (32000) // 48kHz
 #define Fs ((float)(SAMPLERATE)) // sample rate
 #define Ts (1.f/Fs) // sample period
 #define _PI (3.14159265f)

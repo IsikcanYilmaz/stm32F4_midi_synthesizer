@@ -33,7 +33,7 @@ void synth_init(){
   for (int i = 0; i < NUM_VOICES; i++){
     adsr_init(&voices[i]);
     ADSR_t *a = &(voices[i]);
-    adsr_set_attack(a, 0);
+    adsr_set_attack(a, 1);
     adsr_set_decay(a, 1);
     adsr_set_sustain(a, 256);
     adsr_set_release(a, 128);
@@ -157,7 +157,7 @@ void make_sound(uint16_t begin, uint16_t end){
     //waveCompute(&osc1, SINE_TABLE, osc1.freq);
     //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
     //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
-    int16_t y_scaled = (int16_t) (y_sum * 0x0fff);
+    int16_t y_scaled = (int16_t) (y_sum * 0x1000);
     int16_t y_flipped = ((y_scaled & 0x00ff) << (2 * 4)) | ((y_scaled & 0xff00) >> (2 * 4));
     //i2s_buffer[pos] = (y_scaled); // TODO find a good scaling down factor for n channels
     i2s_buffer[pos] = (y_scaled);
