@@ -98,7 +98,9 @@ void synth_init(){
   oscillators[2] = &osc3;
   oscillators[3] = &osc4;
 
-  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * sizeof(uint16_t));
+  //hdma_spi3_tx.Instance->CR |= (1 << 11); // SET DMA PERIPH DATA SIZE TO HALF WORDS (16BITS)
+  //HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * (sizeof(uint16_t)));
+  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
 }
 
 void erase_i2s_buffer(){
@@ -133,7 +135,7 @@ void make_sound(uint16_t begin, uint16_t end){
     for (int i = 0; i < NUM_VOICES; i++){
       adsr_update(&(voices[i]));
       oscillators[i]->amp = voices[i].amp;
-      waveCompute(oscillators[i], SAWTOOTH_TABLE, oscillators[i]->freq);
+      waveCompute(oscillators[i], SINE_TABLE, oscillators[i]->freq);
       y_sum += (oscillators[i]->out) * oscillators[i]->amp;
     }
 
@@ -148,13 +150,18 @@ void make_sound(uint16_t begin, uint16_t end){
     osc1.freq = lfo1_out / 8;// * lfo1_out * lfo1_out;
 #endif
 
+#define DMA_TEST 0
+#if DMA_TEST
+    i2s_buffer[pos] = 0x1234;
+#else
     //waveCompute(&osc1, SINE_TABLE, osc1.freq);
     //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
     //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
     int16_t y_scaled = (int16_t) (y_sum * 0x0fff);
     int16_t y_flipped = ((y_scaled & 0x00ff) << (2 * 4)) | ((y_scaled & 0xff00) >> (2 * 4));
     //i2s_buffer[pos] = (y_scaled); // TODO find a good scaling down factor for n channels
-    i2s_buffer[pos] = (y_flipped);
+    i2s_buffer[pos] = (y_scaled);
+#endif
   }
 }
 

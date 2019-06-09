@@ -72,6 +72,7 @@ void update_midi(){
 
 #endif
 
+
   static uint16_t lastIndex = 0;
   uint16_t bytesSinceLastIndex = MIDI_DMA_BUFFER_SIZE_BYTES - __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
 

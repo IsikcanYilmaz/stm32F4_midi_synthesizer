@@ -183,7 +183,6 @@ int main(void)
   cmd_uart_init();
   io_expander_init();
   internal_tim_init();
-  synth_init();
 
 
   /* USER CODE END 2 */
@@ -212,6 +211,8 @@ int main(void)
   //HAL_UART_Receive_DMA(&huart3, &midi_usart_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
 
   HAL_UART_Receive_DMA(&huart3, &midi_dma_test_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
+
+  synth_init();
   
   //mixer();
   //synth_output();
