@@ -6,7 +6,7 @@
 float_t sinetable[SINETABLE_SIZE];
 
 void sinetable_init(){
-  float timeDifference = _2PI/SINETABLE_SIZE;
+  float timeDifference = _PI/SINETABLE_SIZE;
   for (int i = 0; i < SINETABLE_SIZE; i++){
     sinetable[i] = sin(i * timeDifference);
   }

@@ -2,6 +2,7 @@
 #include "oscillator.h"
 #include "sinetable.h"
 #include "sawtoothtable.h"
+#include "test_pd_array_wavetable.h"
 #include "tim.h"
 #include "math.h"
 
@@ -49,11 +50,32 @@ float waveCompute(Oscillator_t *osc, enum Timbre sound, float freq){
       y = AMP_MULTIPLIER * oscillatorSawtoothTable(osc);
       break;
 
+    case TEST_PD_TABLE:
+      y = AMP_MULTIPLIER * oscillatorTestPdTable(osc);
+      break;
+
     default:
       y = 0;
       break;
   }
   return y;
+}
+
+float oscillatorTriangleTable(Oscillator_t *osc){
+  
+}
+
+float oscillatorTestPdTable(Oscillator_t *osc){ // Table sine
+  while (osc->phase < 0){ // keep phase in [0, 2pi] // why tho?
+    osc->phase += _2PI;
+  } 
+  while (osc->phase >= _2PI){
+    osc->phase -= _2PI;
+  }
+  int index = (int) round(ALPHA * osc->phase);
+  osc->out = osc->amp * test_pd_array_wavetable[index];
+  osc->phase += _2PI * Ts * osc->freq; // increment phase
+  return osc->out;
 }
 
 float oscillatorSawtoothTable(Oscillator_t *osc){

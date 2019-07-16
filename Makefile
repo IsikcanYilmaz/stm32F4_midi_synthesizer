@@ -80,6 +80,7 @@ Src/led.c \
 Src/oscillator.c \
 Src/sinetable.c \
 Src/sawtoothtable.c \
+Src/test_pd_array_wavetable.c \
 Src/adsr.c \
 Src/usb_device.c \
 Src/usbd_conf.c \
@@ -164,7 +165,7 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2 -O0 
+CFLAGS += -g -gdwarf-2 -O3
 endif
 
 

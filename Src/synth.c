@@ -18,6 +18,8 @@ Oscillator_t osc1;
 Oscillator_t osc2;
 Oscillator_t osc3;
 Oscillator_t osc4;
+Oscillator_t osc5;
+Oscillator_t osc6;
 
 Oscillator_t lfo1;
 Oscillator_t lfo2;
@@ -35,8 +37,8 @@ void synth_init(){
     ADSR_t *a = &(voices[i]);
     adsr_set_attack(a, 1);
     adsr_set_decay(a, 1);
-    adsr_set_sustain(a, 256);
-    adsr_set_release(a, 128);
+    adsr_set_sustain(a, 255);
+    adsr_set_release(a, 100);
   }
 
   // main oscillator 
@@ -75,6 +77,24 @@ void synth_init(){
   osc4.modInd = 0;
   osc4.mul = 1;
 
+  // 5. oscillator 
+  osc5.amp = 0.5f;
+  osc5.last_amp = 0.9f;
+  osc5.freq = 0;
+  osc5.phase = 0;
+  osc5.out = 0;
+  osc5.modInd = 0;
+  osc5.mul = 1;
+
+  // 6. oscillator 
+  osc6.amp = 0.5f;
+  osc6.last_amp = 0.9f;
+  osc6.freq = 0;
+  osc6.phase = 0;
+  osc6.out = 0;
+  osc6.modInd = 0;
+  osc6.mul = 1;
+
   // lfo1 for sine sweep
   lfo1.amp = 0.5f;
   lfo1.last_amp = 0.9f;
@@ -97,6 +117,8 @@ void synth_init(){
   oscillators[1] = &osc2;
   oscillators[2] = &osc3;
   oscillators[3] = &osc4;
+  oscillators[4] = &osc5;
+  oscillators[5] = &osc6;
 
   //hdma_spi3_tx.Instance->CR |= (1 << 11); // SET DMA PERIPH DATA SIZE TO HALF WORDS (16BITS)
   //HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * (sizeof(uint16_t)));
@@ -134,8 +156,11 @@ void make_sound(uint16_t begin, uint16_t end){
     float y_sum = 0;
     for (int i = 0; i < NUM_VOICES; i++){
       adsr_update(&(voices[i]));
+      if (voices[i].amp == 0){
+        continue;
+      }
       oscillators[i]->amp = voices[i].amp;
-      waveCompute(oscillators[i], SINE_TABLE, oscillators[i]->freq);
+      waveCompute(oscillators[i], TEST_PD_TABLE, oscillators[i]->freq);
       y_sum += (oscillators[i]->out) * oscillators[i]->amp;
     }
 
@@ -150,18 +175,8 @@ void make_sound(uint16_t begin, uint16_t end){
     osc1.freq = lfo1_out / 8;// * lfo1_out * lfo1_out;
 #endif
 
-#define DMA_TEST 0
-#if DMA_TEST
-    i2s_buffer[pos] = 0x1234;
-#else
-    //waveCompute(&osc1, SINE_TABLE, osc1.freq);
-    //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
-    //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
-    int16_t y_scaled = (int16_t) (y_sum * 0x1000);
-    int16_t y_flipped = ((y_scaled & 0x00ff) << (2 * 4)) | ((y_scaled & 0xff00) >> (2 * 4));
-    //i2s_buffer[pos] = (y_scaled); // TODO find a good scaling down factor for n channels
+    int16_t y_scaled = (int16_t) (y_sum * 0x800);
     i2s_buffer[pos] = (y_scaled);
-#endif
   }
 }
 

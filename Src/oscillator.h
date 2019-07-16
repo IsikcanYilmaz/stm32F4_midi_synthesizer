@@ -18,7 +18,9 @@ enum Timbre {
   SAWTOOTH,
   SQUARE,
   SAWTOOTH_TABLE,
-  SINE_TABLE
+  SINE_TABLE, 
+  TRIANGLE_TABLE,
+  TEST_PD_TABLE
 };
 
 Oscillator_t osc1;
@@ -31,6 +33,7 @@ float oscillatorSineTable(Oscillator_t *osc);
 float oscillatorSquare(Oscillator_t *osc);
 float oscillatorSawtooth(Oscillator_t *osc);
 float oscillatorSawtoothTable(Oscillator_t *osc);
+float oscillatorTestPdTable(Oscillator_t *osc);
 
 float waveCompute(Oscillator_t *osc, enum Timbre sound, float freq);
 
