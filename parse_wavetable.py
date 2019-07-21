@@ -86,7 +86,7 @@ def parsePdFile(inputFileName, generateSourceCode = True, generateHeader = False
             waveData.extend(lineArrFloat)
 
         inputFile.close()
-        return {'data':waveData, 'wavetableName':arrayName}
+        return (waveData, arrayName)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     parser.add_argument('--generate_header', action='store_true', required=False, default=False, help='generate .h file', dest='generateHeader')
     parser.add_argument('--output_dir', action='store', required=False, default='./', help='directory to output to', dest='outputDir')
     args = parser.parse_args()
-    w = parsePdFile(args.inputFileName, args.generateHeader)
-    generateSource(w['data'], w['wavetableName'], True)
+    waveTabeData, waveTableName = parsePdFile(args.inputFileName, args.generateHeader)
+    generateSource(waveTableData, waveTableName, True)
     #displayWavetable(w['data'])
 
