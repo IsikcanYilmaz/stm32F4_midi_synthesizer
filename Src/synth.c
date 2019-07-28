@@ -151,6 +151,10 @@ void make_sound(uint16_t begin, uint16_t end){
   uint16_t *outp;
   float y[NUM_VOICES];
 
+#if SYNTH_SPEED_TEST
+  HAL_GPIO_WritePin(GPIOE, SPEED_TEST_PIN1_Pin, GPIO_PIN_SET);
+#endif
+
   for (pos = begin; pos < end; pos++){ 
     // UPDATE ADSR MODULES
     float y_sum = 0;
@@ -178,6 +182,10 @@ void make_sound(uint16_t begin, uint16_t end){
     int16_t y_scaled = (int16_t) (y_sum * 0x800);
     i2s_buffer[pos] = (y_scaled);
   }
+
+#if SYNTH_SPEED_TEST
+  HAL_GPIO_WritePin(GPIOE, SPEED_TEST_PIN1_Pin, GPIO_PIN_RESET);
+#endif
 }
 
 void note_on(uint8_t key, uint8_t vel){

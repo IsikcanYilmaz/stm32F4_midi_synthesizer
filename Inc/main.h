@@ -86,6 +86,8 @@
 #define SPI1_MOSI_GPIO_Port GPIOA
 #define BOOT1_Pin GPIO_PIN_2
 #define BOOT1_GPIO_Port GPIOB
+#define SPEED_TEST_PIN1_Pin GPIO_PIN_12
+#define SPEED_TEST_PIN1_GPIO_Port GPIOE
 #define CLK_IN_Pin GPIO_PIN_10
 #define CLK_IN_GPIO_Port GPIOB
 #define TIM4_greenLed_Pin GPIO_PIN_12

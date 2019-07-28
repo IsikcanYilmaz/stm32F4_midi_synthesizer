@@ -14,6 +14,7 @@
 #define MIDI_TO_FREQ(x) 440 * (2^((x-69)/12))
 
 
+#define SYNTH_SPEED_TEST 1
 #define SYNTH_MONO 
 
 #include "main.h"
