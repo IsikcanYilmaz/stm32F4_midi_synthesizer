@@ -55,7 +55,8 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -127,6 +128,11 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
+#define SAMPLERATE (32000) // 48kHz
+#define Fs ((float)(SAMPLERATE)) // sample rate
+#define Ts (1.f/Fs) // sample period
+#define _PI (3.14159265f)
+#define _2PI (6.283185307f)
 
 /* USER CODE END Private defines */
 

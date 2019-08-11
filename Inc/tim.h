@@ -75,6 +75,9 @@ extern TIM_HandleTypeDef htim14;
 
 /* USER CODE BEGIN Private defines */
 
+// LED PWM PERIOD VALUE FOR TIM4
+#define  PERIOD_VALUE       100000  /* Period Value  */
+
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);
@@ -94,7 +97,8 @@ void MX_TIM14_Init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                     
 /* USER CODE BEGIN Prototypes */
-
+void internal_tim_init(void);
+void led_tim_init(uint32_t sampleRate);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

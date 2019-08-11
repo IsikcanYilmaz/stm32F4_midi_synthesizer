@@ -77,7 +77,15 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
-Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
+Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
+\
+Src/midi.c \
+Src/cmd_uart.c \
+Src/led.c \
+Src/oscillator.c \
+Src/sinetable.c \
+Src/sawtoothtable.c \
+
 
 
 #Src/midi.c \
@@ -230,10 +238,10 @@ clean:
 # *** EOF ***
 
 install:
-	st-flash write build/f4_test.bin 0x8000000
+	st-flash write build/f4_test_refactored.bin 0x8000000
 
 lldb:
-	lldb build/f4_test.elf
+	lldb build/f4_test_refactored.elf
 
 nanocom:
-	nanocom /dev/ttyACM1 -p n -s 1 -d 7 -f n -e n -b 9600
+	nanocom /dev/ttyACM0 -p n -s 1 -d 7 -f n -e n -b 9600

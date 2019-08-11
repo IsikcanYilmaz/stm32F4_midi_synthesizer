@@ -228,7 +228,7 @@ void MX_TIM4_Init(void)
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = 0;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 0;
+  htim4.Init.Period = PERIOD_VALUE;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
@@ -836,15 +836,62 @@ void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef* tim_ocHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+// TODO // Figure out if this is needed
+void TIM1_Config(uint16_t period){
+  htim1.Instance = TIM1;
+
+  htim1.Init.Period            = 511;
+  htim1.Init.Prescaler         = period; 
+  htim1.Init.ClockDivision     = 0;
+  htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
+  //htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  HAL_TIM_Base_Init(&htim1);
+
+  HAL_TIM_Base_Start(&htim1);
+}
+
+// TODO // Figure out if this is needed v
+// We'll be using TIM14 as our internal timer that drives the interrupts that trigger 
+// the audio synthesis
+void internal_tim_init(){
+  /*  
+   * lets be sampling at 16kHz. 16000 samples per second.
+   * We want to output a 320 Hz waveform, which is 320 cycles per second.
+   * so 16000 kHz / 320 Hz = 50 samples over 1 cycle
+   *
+   * we run 168MHz clock rate. SystemCoreClock
+   * 
+   */
+
+  htim14.Instance = TIM14;
+  htim14.Init.Period = (SystemCoreClock / SAMPLERATE) - 1;
+  htim14.Init.Prescaler = 0;
+  htim14.Init.ClockDivision = 0;
+  htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
+  HAL_TIM_Base_Init(&htim14);
+  //HAL_TIM_Base_Start_IT(&htim14);
+}
+
+// We'll be using TIM5 as our led sampling timer. 
+// well start by trying 500Hz
+void led_tim_init(uint32_t sampleRate){
+  htim5.Instance = TIM5;
+  htim5.Init.Period = (SystemCoreClock / sampleRate) - 1;
+  htim5.Init.Prescaler = 0;
+  htim5.Init.ClockDivision = 0;
+  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+  HAL_TIM_Base_Init(&htim5);
+
+}
 
 /* USER CODE END 1 */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -65,7 +65,7 @@ extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
-
+extern DMA_HandleTypeDef hdma_usart3_rx;
 /* USER CODE END Private defines */
 
 extern void _Error_Handler(char *, int);

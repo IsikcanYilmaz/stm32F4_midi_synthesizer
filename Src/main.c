@@ -59,7 +59,9 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "midi.h"
+#include "cmd_uart.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -129,16 +131,26 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  led_init();
+  LED_SET_CHANNEL(PWM_CHANNEL_RED, 999);
+  cmd_uart_init();
+  midi_init();
+  //internal_tim_init(); // buna gerek var mi bilmiyorum. TODO
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
   while (1)
   {
 
   /* USER CODE END WHILE */
-
+  midi_update();
   /* USER CODE BEGIN 3 */
 
   }
