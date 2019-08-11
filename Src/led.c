@@ -118,7 +118,7 @@ void led_isr(){
   __HAL_TIM_SET_COMPARE(&htim4, curr_channel, led_signal[led_cursor]);
   led_cursor += offset;
   if (led_cursor >= LED_SIGNAL_SIZE){
-    if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin)){
+    if(HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) || voices[0].amp > 0){
       offset_up = true;
       offset += (offset_up) ? 10 : -10;
     } else {

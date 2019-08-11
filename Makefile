@@ -237,4 +237,4 @@ lldb:
 	lldb build/f4_test.elf
 
 nanocom:
-	nanocom /dev/ttyACM1 -p n -s 1 -d 7 -f n -e n -b 9600
+	nanocom /dev/ttyACM0 -p n -s 1 -d 7 -f n -e n -b 9600

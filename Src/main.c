@@ -202,12 +202,12 @@ int main(void)
   int j; for(j = 0; j < 50; j++) { sp_buffer[j] = 0; }
 
   // ENABLE UART INTERRUPTS AND FIRE OFF UARTS
-  __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
-  HAL_UART_Receive_IT(&huart2, &input_buffer, 1);
-  NVIC_EnableIRQ(USART2_IRQn);
-  __HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
-  __HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_TC);
-  __HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_HT);
+  //__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
+  //HAL_UART_Receive_IT(&huart2, &input_buffer, 1);
+  //NVIC_EnableIRQ(USART2_IRQn);
+  //__HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
+  //__HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_TC);
+  //__HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_HT);
   //HAL_UART_Receive_DMA(&huart3, &midi_usart_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
 
   HAL_UART_Receive_DMA(&huart3, &midi_dma_test_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
@@ -229,6 +229,7 @@ int main(void)
   /* USER CODE BEGIN 3 */
     //poll_keybs(); // requires: io expander board
     update_midi();
+    print("TEST\n");
   }
   /* USER CODE END 3 */
 

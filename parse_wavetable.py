@@ -7,17 +7,16 @@ import matplotlib.pyplot as plt
 Read .pd file, generate .c/.h files from the arrays.
 
 usage: parse_wavetable.py [-h] --input INPUTFILENAME [--generate_header]
-                          [--outputDir OUTPUTFILENAME]
+                          [--output_dir OUTPUTFILENAME]
 
 optional arguments:
   -h, --help            show this help message and exit
   --input INPUTFILENAME
                         input pd file name
   --generate_header     generate .h file
-  --outputDir OUTPUTFILENAME
+  --output_dir OUTPUTFILENAME
                         directory to output to
-
-
+  --plotonly            only display the wave
 '''
 
 cSourceTemplate = '''
@@ -37,29 +36,32 @@ def displayWavetable(wavetable):
     plt.plot(wavetable)
     plt.show()
 
-def smoothWavetable(wavetable):
-    pass
+def smoothWavetable(wavetable, box_pts):
+    box = np.ones(box_pts)/box_pts
+    y_smooth = np.convolve(wavetable, box, mode='same')
+    return y_smooth
 
 def generateSource(wavetable, arrayName, generateHeader=False): # todo enable custom path
     cFileName = '%s_wavetable.c' % arrayName
     hFileName = cFileName.replace('c', 'h')
     bodyString = ''
 
-    for p,j in enumerate(wavetable):
+    for j,p in enumerate(wavetable):
         bodyString += (str(p) + ', ')
-        if (j % 16 == 0):
+        if (j % 8 == 0 and j > 0):
             bodyString += "\ \n"
     with open(cFileName, 'w') as cFile:
         cSource = cSourceTemplate % (arrayName, arrayName, int(len(wavetable)), bodyString)
         cFile.write(cSource)
         cFile.close()
+        print("[*] %s" % (cFileName))
 
     if (generateHeader):
         hSource = hSourceTemplate % (arrayName, int(len(wavetable)))
         with open(hFileName, 'w') as hFile:
             hFile.write(hSource)
             hFile.close()
-
+        print("[*] %s" % (hFileName))
 
 def parsePdFile(inputFileName, generateSourceCode = True, generateHeader = False):
     waveData = []
@@ -95,8 +97,13 @@ if __name__ == '__main__':
     parser.add_argument('--input', action='store', required=True, help='input pd file name', dest='inputFileName')
     parser.add_argument('--generate_header', action='store_true', required=False, default=False, help='generate .h file', dest='generateHeader')
     parser.add_argument('--output_dir', action='store', required=False, default='./', help='directory to output to', dest='outputDir')
+    parser.add_argument('--plotonly', action='store_true', required=False, default=False, help='only display the wave', dest='plotonly')
     args = parser.parse_args()
-    waveTabeData, waveTableName = parsePdFile(args.inputFileName, args.generateHeader)
-    generateSource(waveTableData, waveTableName, True)
-    #displayWavetable(w['data'])
+    waveTableData, waveTableName = parsePdFile(args.inputFileName, args.generateHeader)
+    if (args.plotonly):
+        displayWavetable(waveTableData)
+        displayWavetable(smoothWavetable(waveTableData,128))
+    else:
+        pass
+        generateSource(waveTableData, waveTableName, True)
 
