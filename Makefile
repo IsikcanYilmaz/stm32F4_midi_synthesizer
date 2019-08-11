@@ -172,7 +172,7 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2 -O3
+CFLAGS += -g -gdwarf-2 -O0
 endif
 
 
@@ -244,4 +244,4 @@ lldb:
 	lldb build/f4_test_refactored.elf
 
 nanocom:
-	nanocom /dev/ttyACM0 -p n -s 1 -d 7 -f n -e n -b 9600
+	nanocom /dev/ttyACM1 -p n -s 1 -d 7 -f n -e n -b 38400
