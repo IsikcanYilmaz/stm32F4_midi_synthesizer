@@ -22,10 +22,10 @@
 
 #define LED_DEMO_ON 1
 #define LED_DEMO_BLINK  0 // blink
-#define LED_DEMO_SINE   1 // normal sine
+#define LED_DEMO_SINE   0 // normal sine
 #define LED_DEMO_ALTERN 0 // alternating leds sine
 #define LED_DEMO_LATEST 0 // alternating leds that modulate faster when button is held down
-#define LED_DEMO_VOICES 0 // leds to reflect adsr outputs of (at most) 4 voices
+#define LED_DEMO_VOICES 1 // leds to reflect adsr outputs of (at most) 4 voices
 
 extern uint16_t led_signal[LED_SIGNAL_SIZE];
 extern uint16_t led_lfo_signal[LED_SIGNAL_SIZE];

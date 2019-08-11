@@ -65,7 +65,7 @@ float oscillatorSawtoothTable(Oscillator_t *osc){
   while (osc->phase >= _2PI){
     osc->phase -= _2PI;
   }
-  osc->out = osc->amp * sawtoothtable[(int)round(ALPHA * osc->phase)];
+  osc->out = osc->amp * sawtoothtable[(int)round(SAWTOOTH_ALPHA * osc->phase)];
   osc->phase += _2PI * Ts * osc->freq; // increment phase
   return osc->out;
 } // TODO This could be done more elegantly. i.e. shorten the code
@@ -77,7 +77,7 @@ float oscillatorSineTable(Oscillator_t *osc){ // Table sine
   while (osc->phase >= _2PI){
     osc->phase -= _2PI;
   }
-  osc->out = osc->amp * sinetable[(int)round(ALPHA * osc->phase)];
+  osc->out = osc->amp * sinetable[(int)round(SINETABLE_ALPHA * osc->phase)];
   osc->phase += _2PI * Ts * osc->freq; // increment phase
   return osc->out;
 }

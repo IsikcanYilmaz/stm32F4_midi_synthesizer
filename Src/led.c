@@ -5,14 +5,16 @@
 #include "gpio.h"
 #include "oscillator.h"
 #include "tim.h"
-//#include "adsr.h"
+#include "vca.h"
+#include "config.h"
+//#include "synth.h"
 
 // tim4 is the timer with the pwm controlling the leds.
 // tim5 is the sampling timer (i guess itd be called that?)
 // we want the sampling timer to interrupt with frequency of 500Hz? 
 // thie initialization of the timer will be done in tim.c
 
-//extern ADSR_t voices[NUM_VOICES];
+extern VCA_t voices[NUM_VOICES];
 
 Oscillator_t led_osc;
 Oscillator_t led_lfo;
@@ -150,12 +152,12 @@ void led_isr(){
 
   led_speed = offset;
 #endif
-#if 0 &&  LED_DEMO_VOICES
+#if LED_DEMO_VOICES
   /* ADSR -> LEDs
    */
   int ch = PWM_CHANNEL_GREEN;
   for (int i = 0; i < NUM_VOICES; i++){
-    ADSR_t *v = &(voices[i]);
+    VCA_t *v = &(voices[i]);
     float amp = v->amp;
     __HAL_TIM_SET_COMPARE(&htim4, ch, 999 * amp);
     ch += 4;

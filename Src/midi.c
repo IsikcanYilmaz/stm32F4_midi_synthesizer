@@ -3,7 +3,7 @@
 #include "gpio.h"
 #include "led.h"
 #include "usart.h"
-//#include "synth.h"
+#include "synth.h"
 #include "dma.h"
 #include "cmd_shell.h"
 
@@ -16,10 +16,10 @@ volatile uint16_t midi_packet_buffer_head = 0;
 volatile uint16_t midi_packet_buffer_tail = 0;
 volatile uint16_t midi_usart_buffer_index = 0;
 
-volatile uint8_t midi_dma_test_buffer[MIDI_DMA_BUFFER_SIZE_BYTES];
+volatile uint8_t midi_dma_buffer[MIDI_DMA_BUFFER_SIZE_BYTES];
 
 void midi_init(){
-  HAL_UART_Receive_DMA(&huart3, (uint8_t *) &midi_dma_test_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
+  HAL_UART_Receive_DMA(&huart3, (uint8_t *) &midi_dma_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
 }
 
 // puts packet in fifo. increments tail
@@ -80,7 +80,7 @@ void midi_update(){
         process_midi_packet(&p);
         i = 0;
       }
-      p_bytes[i] = midi_dma_test_buffer[lastByteIndex];
+      p_bytes[i] = midi_dma_buffer[lastByteIndex];
       i++;
       lastByteIndex++;
       if (lastByteIndex == MIDI_DMA_BUFFER_SIZE_BYTES){
@@ -97,7 +97,7 @@ void midi_update(){
   if (queuedPackets){ 
     // While last index is not the head of the circular buff (minus all bytes of an incomplete midi packet)
     while(lastIndex != (bytesSinceLastIndex - (bytesSinceLastIndex % MIDI_PACKET_SIZE))){
-      MIDIPacket_t *p = (MIDIPacket_t *) (&midi_dma_test_buffer[lastIndex]);
+      MIDIPacket_t *p = (MIDIPacket_t *) (&midi_dma_buffer[lastIndex]);
       process_midi_packet(p);
       lastIndex += MIDI_PACKET_SIZE;
       if (lastIndex >= MIDI_DMA_BUFFER_SIZE_BYTES){
@@ -115,12 +115,12 @@ void process_midi_packet(MIDIPacket_t *p){
     case NOTE_OFF:
       key = p->data_byte1;
       vel = p->data_byte2;
-      //note_off(key);
+      note_off(key);
       break;
     case NOTE_ON:
       key = p->data_byte1;
       vel = p->data_byte2;
-      //note_on(key, vel);
+      note_on(key, vel);
       break;
     case POLY_KEY_PRESSURE:
       return;
@@ -147,3 +147,5 @@ void inject_midi_packet(uint16_t midiNum, bool noteOn){
   }
   enqueue_midi_packet(&p);
 }
+
+

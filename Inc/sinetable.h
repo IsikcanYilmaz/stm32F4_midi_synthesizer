@@ -22,7 +22,7 @@ extern const  float_t sinetable[1025];
 #endif
 
 #define _2PI    		6.283185307f
-#define ALPHA			(SINETABLE_SIZE/_2PI)
+#define SINETABLE_ALPHA			(SINETABLE_SIZE/_2PI)
 
 
 void sinetable_init();

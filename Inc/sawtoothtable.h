@@ -8,7 +8,7 @@
 extern float_t sawtoothtable[SAWTOOTHTABLE_SIZE];
 
 #define _2PI  6.283185307f
-#define ALPHA (SAWTOOTHTABLE_SIZE/_2PI)
+#define SAWTOOTH_ALPHA (SAWTOOTHTABLE_SIZE/_2PI)
 
 void sawtoothtable_init();
 

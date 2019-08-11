@@ -300,8 +300,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
    * AND AT SOME POINT FIX THIS ISSUE IN ITS ROOT. TODO TODO TODO TODO
    */
   uint8_t result;
-  result = cmd_shell_receive(Buf, Len);
-  return (USBD_OK);
+  result = cmd_shell_cdc_receive(Buf, Len);
+  return result;
   /* USER CODE END 6 */
 }
 
@@ -320,7 +320,7 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
 {
   uint8_t result;
   /* USER CODE BEGIN 7 */
-  result = cmd_shell_transmit(Buf, Len);
+  result = cmd_shell_cdc_transmit(Buf, Len);
   /* USER CODE END 7 */
   return result;
 }

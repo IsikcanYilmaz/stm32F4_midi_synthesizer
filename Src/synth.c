@@ -4,46 +4,41 @@
 #include "i2s.h"
 #include "gpio.h"
 #include "led.h"
-//#include "adsr.h"
-//#include "frequency_table.h"
-//#include "cmd_uart.h"
+#include "vca.h"
+#include "frequency_table.h"
+#include "cmd_shell.h"
 #include <math.h>
 #include <string.h>
 
-uint16_t i2s_buffer[BUF_SIZE]; // THE i2s buffer
+int16_t i2s_buffer[BUF_SIZE]; // THE i2s buffer
 uint16_t counters[NUM_OSCILLATORS], output;
 
 Oscillator_t osc1;
 Oscillator_t osc2;
 Oscillator_t osc3;
 Oscillator_t osc4;
+Oscillator_t osc5;
+Oscillator_t osc6;
 
 Oscillator_t lfo1;
 Oscillator_t lfo2;
 
-ADSR_t voices[NUM_VOICES];
+VCA_t voices[NUM_VOICES];
 Oscillator_t *oscillators[NUM_VOICES];
 
 uint8_t voice_cursor;
 
 void synth_init(){
-  // initialize "voice" structures; ADSR modules.
+  // initialize "voice" structures; VCA modules.
   voice_cursor = 0;
   for (int i = 0; i < NUM_VOICES; i++){
-    adsr_init(&voices[i]);
-    ADSR_t *a = &(voices[i]);
-    adsr_set_attack(a, 1);
-    adsr_set_decay(a, 128);
-    adsr_set_sustain(a, 255);
-    adsr_set_release(a, 16);
+    vca_init(&voices[i]);
+    VCA_t *v = &(voices[i]);
+    vca_set_attack(v, 1);
+    vca_set_decay(v, 255);
+    vca_set_sustain(v, 255);
+    vca_set_release(v, 255);
   }
-#if ADSR_TEST
-  ADSR_t *a = &(voices[0]);
-  adsr_set_attack(a, 0);
-  adsr_set_decay(a, 128);
-  adsr_set_sustain(a, 128);
-  adsr_set_release(a, 128);
-#endif
 
   // main oscillator 
   osc1.amp = 0.5f;
@@ -62,6 +57,42 @@ void synth_init(){
   osc2.out = 0;
   osc2.modInd = 0;
   osc2.mul = 1;
+
+  // 3. oscillator 
+  osc3.amp = 0.5f;
+  osc3.last_amp = 0.9f;
+  osc3.freq = 0;
+  osc3.phase = 0;
+  osc3.out = 0;
+  osc3.modInd = 0;
+  osc3.mul = 1;
+
+  // 4. oscillator 
+  osc4.amp = 0.5f;
+  osc4.last_amp = 0.9f;
+  osc4.freq = 0;
+  osc4.phase = 0;
+  osc4.out = 0;
+  osc4.modInd = 0;
+  osc4.mul = 1;
+
+  // 5. oscillator 
+  osc5.amp = 0.5f;
+  osc5.last_amp = 0.9f;
+  osc5.freq = 0;
+  osc5.phase = 0;
+  osc5.out = 0;
+  osc5.modInd = 0;
+  osc5.mul = 1;
+
+  // 6. oscillator 
+  osc6.amp = 0.5f;
+  osc6.last_amp = 0.9f;
+  osc6.freq = 0;
+  osc6.phase = 0;
+  osc6.out = 0;
+  osc6.modInd = 0;
+  osc6.mul = 1;
 
   // lfo1 for sine sweep
   lfo1.amp = 0.5f;
@@ -85,8 +116,10 @@ void synth_init(){
   oscillators[1] = &osc2;
   oscillators[2] = &osc3;
   oscillators[3] = &osc4;
+  oscillators[4] = &osc5;
+  oscillators[5] = &osc6;
 
-  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE * sizeof(uint16_t));
+  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
 }
 
 void erase_i2s_buffer(){
@@ -116,10 +149,13 @@ void make_sound(uint16_t begin, uint16_t end){
   float y[NUM_VOICES];
 
   for (pos = begin; pos < end; pos++){ 
-    // UPDATE ADSR MODULES
+    // UPDATE VCA MODULES
     float y_sum = 0;
     for (int i = 0; i < NUM_VOICES; i++){
-      adsr_update(&(voices[i]));
+      vca_update(&(voices[i]));
+      if (voices[i].amp == 0){
+        continue;
+      }
       oscillators[i]->amp = voices[i].amp;
       waveCompute(oscillators[i], SINE_TABLE, oscillators[i]->freq);
       y_sum += (oscillators[i]->out) * oscillators[i]->amp;
@@ -136,33 +172,60 @@ void make_sound(uint16_t begin, uint16_t end){
     osc1.freq = lfo1_out / 8;// * lfo1_out * lfo1_out;
 #endif
 
-    //waveCompute(&osc1, SINE_TABLE, osc1.freq);
-    //waveCompute(oscillators[0], SINE_TABLE, oscillators[0]->freq);
-    //i2s_buffer[pos] = (uint16_t)(40 * (oscillators[0]->out + 1) * oscillators[0]->amp);
-    i2s_buffer[pos] = (int16_t) (50 * y_sum) / NUM_VOICES;
+    int16_t y_scaled = (int16_t) (y_sum * 0x800);
+    i2s_buffer[pos] = (y_scaled);
   }
 }
 
 void note_on(uint8_t key, uint8_t vel){
-  /*
-   * Have NUM_VOICES number of voices. when you get a note on, 
-   * put it on the linked list. when you run out of voices, 
-   * head of the list will be the voice to be used. if a voice's 
-   * note turns off it will set the next pointer of the voice behind it,
-   * to the voice next to itself. (youll see)
-   */
-  ADSR_t *adsr = &voices[voice_cursor];
-  adsr_excite(adsr, key);
+  VCA_t *vca = NULL;
+  static uint32_t noteNum = 0;
+
+  // FIND A VOICE THATS UNUSED
+  // IF ALL USED <DECIDE>
+  uint32_t oldest = noteNum;
+  uint8_t oldestVoiceIdx = 0;
+  for (int i = 0; i < NUM_VOICES; i++){
+    //print("VOICE %d STATE %d/%d\n", i, voices[i].state, NUM_VOICES);
+
+    // RECORD THE OLDEST HIT NOTE/VCA OBJ
+    if (voices[i].noteOnNum < oldest){
+      oldest= voices[i].noteOnNum;
+      oldestVoiceIdx = i;
+    }
+
+    // NOTE ALREADY ON IN A VOICE. RETRIGGER IT
+    if (voices[i].key == key && voices[i].state < VCA_DONE){
+      vca = &voices[i];
+      voice_cursor = i;
+      break;
+    }
+    
+    // FREE VOICE SLOT FOUND
+    if (voices[i].state == VCA_DONE){
+      vca = &voices[i];
+      voice_cursor = i;
+      break;
+    }
+  }
+  
+  //vca seems to be broken with NUM_VOICES == 4.
+  //like when i set somethings state to attack
+  //it freezes. bad. 
+  //
+  if (vca == NULL){ // ALL ARE USED
+    vca = &voices[oldestVoiceIdx];
+    voice_cursor = oldestVoiceIdx;
+    //return; // COMMENT THIS LINE TO HAVE VOICE STEALING
+  }
+  vca_excite(vca, key);
+  vca->noteOnNum = noteNum;
+  noteNum++;
   float freq = midi_frequency_table[key];
   oscillators[voice_cursor]->freq = freq;
+  //print("NOTE ON %d FREQ %f. ASSIGNING TO VOICE # %d\n", key, freq, voice_cursor);
   
-  // SELECT NEXT INDEX
-  
-  
-  print("NOTE %d ON. ASSIGNING TO VOICE # %d\n", key, voice_cursor);
-  voice_cursor++;
-  voice_cursor = voice_cursor % NUM_VOICES;
-  
+  print("NOTE ON %d. VOICE %d. VCA %x STATE %d FREQ %f TABLEFREQ %f\n", key, voice_cursor, vca, vca->state, oscillators[voice_cursor]->freq, freq);
 
 }
 
@@ -170,11 +233,11 @@ void note_off(uint8_t key){
   for (int i = 0; i < NUM_VOICES; i++){
     if (voices[i].key == key){
       print("NOTE %d OFF. WAS AT VOICE # %d\n", key, i);
-      adsr_release(&voices[i]);
+      vca_release(&voices[i]);
       return;
     }
   }
-  print("NOTE %d OFF. VOICE NOT FOUND\n", key);
+  //print("NOTE %d OFF. VOICE NOT FOUND\n", key);
 }
 
 void mixer(){

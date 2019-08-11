@@ -132,11 +132,14 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   led_init();
+  sinetable_init();
   LED_SET_CHANNEL(PWM_CHANNEL_RED, 999);
   cmd_shell_init();
   midi_init();
-  //internal_tim_init(); // buna gerek var mi bilmiyorum. TODO
+  codec_init();
+  synth_init();
 
+  LED_SET_CHANNEL(PWM_CHANNEL_RED, 0);
   /* USER CODE END 2 */
 
   /* Infinite loop */
