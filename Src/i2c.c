@@ -131,24 +131,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-/*
-HAL_StatusTypeDef i2c_codec_write_register(uint16_t location, uint8_t *data, uint16_t size){
-  uint8_t payload[size + 2];
-  payload[0] = (0x25 << 2) | (CODEC_BOARD_AD0_PIN << 1) | 0;
-  payload[1] = location;
-  memset(&payload[2], data, size);
-  volatile HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(&hi2c1, CODEC_I2C_ADDRESS, &payload, size + 2, HAL_MAX_DELAY);
-  return ret; 
-}
 
-HAL_StatusTypeDef i2c_codec_read_register(uint16_t location, uint8_t *data, uint16_t size){
-  volatile uint8_t payload;
-  payload = (0x25 << 2) | (CODEC_BOARD_AD0_PIN << 1) | 1;
- // volatile HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(&hi2c1, CODEC_I2C_ADDRESS, &payload, 1, HAL_MAX_DELAY);
-  volatile HAL_StatusTypeDef ret = HAL_I2C_Master_Receive(&hi2c1, payload, data, size, HAL_MAX_DELAY);
-  return ret;
-}
-*/
 /* USER CODE END 1 */
 
 /**

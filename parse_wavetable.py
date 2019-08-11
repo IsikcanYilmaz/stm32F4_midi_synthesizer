@@ -45,8 +45,10 @@ def generateSource(wavetable, arrayName, generateHeader=False): # todo enable cu
     hFileName = cFileName.replace('c', 'h')
     bodyString = ''
 
-    for p in wavetable:
+    for p,j in enumerate(wavetable):
         bodyString += (str(p) + ', ')
+        if (j % 16 == 0):
+            bodyString += "\ \n"
     with open(cFileName, 'w') as cFile:
         cSource = cSourceTemplate % (arrayName, arrayName, int(len(wavetable)), bodyString)
         cFile.write(cSource)

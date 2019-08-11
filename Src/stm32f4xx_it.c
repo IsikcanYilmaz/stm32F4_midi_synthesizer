@@ -36,21 +36,11 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
-#include "cmd_uart.h"
-#include "usart.h"
-#include "synth.h"
-#include "i2s.h"
-#include "led.h"
-#include "gpio.h"
-#include "midi.h"
 
-
-#include "stm32f4xx_hal_usart.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
-extern DAC_HandleTypeDef hdac;
 extern DMA_HandleTypeDef hdma_spi3_tx;
 extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim6;
@@ -220,8 +210,7 @@ void DMA1_Stream1_IRQHandler(void)
   /* USER CODE END DMA1_Stream1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart3_rx);
   /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
-  //HAL_UART_Receive_DMA(&huart3, &midi_usart_buffer[midi_usart_buffer_index * MIDI_PACKET_SIZE], MIDI_PACKET_SIZE);
-  //huart3.pTxBuffPtr += midi_packet_buffer_head * MIDI_PACKET_SIZE;
+
   /* USER CODE END DMA1_Stream1_IRQn 1 */
 }
 
@@ -249,8 +238,7 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
-  cmd_uart_isr();
-  //HAL_UART_Receive_IT(&huart2, (&input_buffer + input_buffer_cursor), 1);
+
   /* USER CODE END USART2_IRQn 1 */
 }
 
@@ -260,28 +248,7 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-  /*if (__HAL_USART_GET_IT_SOURCE(&huart3, USART_IT_RXNE)){
-    static int usartIrqLed = 0;
-    midi_usart_buffer_index++;
-    if (midi_usart_buffer_index == 3){
-    MIDIPacket_t *p = (MIDIPacket_t *) &midi_dma_buffer;
-    enqueue_midi_packet(p);
-    midi_usart_buffer_index = 0;
-    if (usartIrqLed == 0){
-    usartIrqLed = 999;
-    } else {
-    usartIrqLed = 0;
-    }
-    }
-    }*/
-  /*if (midi_usart_buffer_index >= MIDI_BUFFER_SIZE_BYTES){
-    midi_usart_buffer_index = 0;
-    }
-    if (midi_usart_buffer_index % MIDI_PACKET_SIZE == 0){
-    MIDIPacket_t *p = (MIDIPacket_t *) (&midi_usart_buffer[midi_usart_buffer_index - MIDI_PACKET_SIZE]);
-    enqueue_midi_packet(p);
-    }*/
-  // commenting out the irq handler doesnt seem to break anything. so far. 
+
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
@@ -295,9 +262,7 @@ void USART3_IRQHandler(void)
 void TIM8_TRG_COM_TIM14_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 0 */
-  //mixer();
-  //make_sound();
-  //make_sound_osc();
+
   /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 0 */
   HAL_TIM_IRQHandler(&htim8);
   HAL_TIM_IRQHandler(&htim14);
@@ -312,7 +277,7 @@ void TIM8_TRG_COM_TIM14_IRQHandler(void)
 void TIM5_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM5_IRQn 0 */
-  led_isr();
+
   /* USER CODE END TIM5_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);
   /* USER CODE BEGIN TIM5_IRQn 1 */
@@ -328,7 +293,6 @@ void TIM6_DAC_IRQHandler(void)
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
 
   /* USER CODE END TIM6_DAC_IRQn 0 */
-  HAL_DAC_IRQHandler(&hdac);
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
 

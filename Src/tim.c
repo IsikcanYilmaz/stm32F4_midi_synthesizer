@@ -51,12 +51,6 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-#define  PERIOD_VALUE       100000  /* Period Value  */
-#define  PULSE1_VALUE       1200        /* Capture Compare 1 Value  */
-#define  PULSE2_VALUE       800         /* Capture Compare 2 Value  */
-#define  PULSE3_VALUE       533         /* Capture Compare 3 Value  */
-#define  PULSE4_VALUE       1         /* Capture Compare 4 Value  */
-
 
 /* USER CODE END 0 */
 
@@ -234,7 +228,7 @@ void MX_TIM4_Init(void)
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = 0;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = PERIOD_VALUE;
+  htim4.Init.Period = 0;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
@@ -754,14 +748,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
     __HAL_RCC_TIM6_CLK_DISABLE();
 
     /* TIM6 interrupt Deinit */
-  /* USER CODE BEGIN TIM6:TIM6_DAC_IRQn disable */
-    /**
-    * Uncomment the line below to disable the "TIM6_DAC_IRQn" interrupt
-    * Be aware, disabling shared interrupt may affect other IPs
-    */
-    /* HAL_NVIC_DisableIRQ(TIM6_DAC_IRQn); */
-  /* USER CODE END TIM6:TIM6_DAC_IRQn disable */
-
+    HAL_NVIC_DisableIRQ(TIM6_DAC_IRQn);
   /* USER CODE BEGIN TIM6_MspDeInit 1 */
 
   /* USER CODE END TIM6_MspDeInit 1 */
@@ -849,99 +836,6 @@ void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef* tim_ocHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-void animate_pwms(uint8_t pos){
-  
-}
-
-void TIM1_Config(uint16_t period){
-  htim1.Instance = TIM1;
-
-  htim1.Init.Period            = 511; 
-  htim1.Init.Prescaler         = period;
-  htim1.Init.ClockDivision     = 0;  
-  htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  //htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-  HAL_TIM_Base_Init(&htim1);
-
-  HAL_TIM_Base_Start(&htim1);
-}
-
-void TIM2_Config(uint16_t period){
-  htim2.Instance = TIM2;
-
-  htim2.Init.Period            = 511; 
-  htim2.Init.Prescaler         = period;
-  htim2.Init.ClockDivision     = 0;  
-  htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  //htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-  HAL_TIM_Base_Init(&htim2);
-
-  HAL_TIM_Base_Start(&htim2);
-
-}
-
-void TIM3_Config(uint16_t period){
-  htim3.Instance = TIM3;
-
-  htim3.Init.Period            = 511; 
-  htim3.Init.Prescaler         = period;
-  htim3.Init.ClockDivision     = 0;  
-  htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  //htim21.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-  HAL_TIM_Base_Init(&htim3);
-
-  HAL_TIM_Base_Start(&htim3);
-
-}
-
-void TIM5_Config(uint16_t period){
-  htim5.Instance = TIM5;
-
-  htim5.Init.Period            = 511; 
-  htim5.Init.Prescaler         = period;
-  htim5.Init.ClockDivision     = 0;  
-  htim5.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  //htim22.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-  HAL_TIM_Base_Init(&htim5);
-
-  HAL_TIM_Base_Start(&htim5);
-
-}
-
-
-// We'll be using TIM14 as our internal timer that drives the interrupts that trigger 
-// the audio synthesis
-void internal_tim_init(){
-  /*
-   * lets be sampling at 16kHz. 16000 samples per second.
-   * We want to output a 320 Hz waveform, which is 320 cycles per second.
-   * so 16000 kHz / 320 Hz = 50 samples over 1 cycle
-   *
-   * we run 168MHz clock rate. SystemCoreClock
-   * 
-   */
-
-  htim14.Instance = TIM14;
-  htim14.Init.Period = (SystemCoreClock / SAMPLERATE) - 1;
-  htim14.Init.Prescaler = 0;
-  htim14.Init.ClockDivision = 0;
-  htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  HAL_TIM_Base_Init(&htim14);
-  //HAL_TIM_Base_Start_IT(&htim14);
-}
-
-// We'll be using TIM5 as our led sampling timer. 
-// well start by trying 500Hz
-void led_tim_init(uint32_t sampleRate){
-  htim5.Instance = TIM5;
-  htim5.Init.Period = (SystemCoreClock / sampleRate) - 1;
-  htim5.Init.Prescaler = 0;
-  htim5.Init.ClockDivision = 0;
-  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  HAL_TIM_Base_Init(&htim5);
-
-}
-
 
 /* USER CODE END 1 */
 

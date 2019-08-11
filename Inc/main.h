@@ -55,13 +55,11 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-#include <stdbool.h>
+
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
 
-#define CS_I2C_SPI_Pin GPIO_PIN_3
-#define CS_I2C_SPI_GPIO_Port GPIOE
 #define CS_IO_EXPANDER_Pin GPIO_PIN_4
 #define CS_IO_EXPANDER_GPIO_Port GPIOE
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
@@ -80,10 +78,6 @@
 #define B1_GPIO_Port GPIOA
 #define I2S3_WS_Pin GPIO_PIN_4
 #define I2S3_WS_GPIO_Port GPIOA
-#define SPI1_MISO_Pin GPIO_PIN_6
-#define SPI1_MISO_GPIO_Port GPIOA
-#define SPI1_MOSI_Pin GPIO_PIN_7
-#define SPI1_MOSI_GPIO_Port GPIOA
 #define BOOT1_Pin GPIO_PIN_2
 #define BOOT1_GPIO_Port GPIOB
 #define CLK_IN_Pin GPIO_PIN_10
@@ -124,8 +118,6 @@
 #define Audio_SCL_GPIO_Port GPIOB
 #define Audio_SDA_Pin GPIO_PIN_9
 #define Audio_SDA_GPIO_Port GPIOB
-#define MEMS_INT2_Pin GPIO_PIN_1
-#define MEMS_INT2_GPIO_Port GPIOE
 
 /* ########################## Assert Selection ############################## */
 /**
@@ -135,17 +127,6 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
-#define FLOAT_TO_INT16(x) (uint16_t)((int16_t)((32767.0f) * x))
-
-#define LED_DEMO_MAX_PWM 1024
-#define LED_DEMO_DELAY_THRESH 0
-
-#define NUM_VOICES 6
-#define SAMPLERATE (32000) // 48kHz
-#define Fs ((float)(SAMPLERATE)) // sample rate
-#define Ts (1.f/Fs) // sample period
-#define _PI (3.14159265f)
-#define _2PI (6.283185307f)
 
 /* USER CODE END Private defines */
 

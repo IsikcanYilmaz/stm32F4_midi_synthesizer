@@ -49,7 +49,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "dac.h"
 #include "dma.h"
 #include "i2c.h"
 #include "i2s.h"
@@ -60,18 +59,6 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include "synth.h"
-#include "midi.h"
-//#include "stm32f4_discovery_audio_codec.h"
-#include "cs43l22.h"
-#include "io_expander.h"
-#include "cmd_uart.h"
-#include "led.h"
-#include "stm32f4xx_hal_dma.h"
-#include "sinetable.h"
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -79,7 +66,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint8_t midi_dma_test_buffer[MIDI_DMA_BUFFER_SIZE_BYTES];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,39 +78,7 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-/*void led_demo_animation(){
-  static uint16_t i = 0;
-  static uint8_t current_channel = TIM_CHANNEL_1;
-  static bool direction = true;
-  static uint16_t delay = 0;
-  delay++;
-  if (delay > LED_DEMO_DELAY_THRESH){ // LED ANIMATION DEMO
-    __HAL_TIM_SET_COMPARE(&htim4, current_channel, i);
-    if (direction){
-      i++;
-    } else {
-      i--;
-    }
 
-    if (i >= LED_DEMO_MAX_PWM){
-      i = LED_DEMO_MAX_PWM;
-      direction = false;
-
-    }
-    if (i <= 0){
-      i = 0;
-      direction = true;
-      // change channel as well
-      current_channel += 4;
-      if (current_channel > TIM_CHANNEL_4)
-        current_channel = TIM_CHANNEL_1;
-    }
-    delay = 0;
-  }
-
-
-}
-*/
 /* USER CODE END 0 */
 
 /**
@@ -164,7 +119,6 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM5_Init();
   MX_USART2_UART_Init();
-  MX_DAC_Init();
   MX_SPI2_Init();
   MX_TIM14_Init();
   MX_TIM13_Init();
@@ -175,60 +129,18 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  led_init();
-  sinetable_init();
-  sawtoothtable_init();
-  LED_SET_CHANNEL(PWM_CHANNEL_RED, 999); // turn on led to indicate init process
-  codec_init();
-  cmd_uart_init();
-  io_expander_init();
-  internal_tim_init();
-
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
- 
-
-  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
-  TIM1_Config(1000);
-
-  HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
-  char sp_buffer[50];
-  int j; for(j = 0; j < 50; j++) { sp_buffer[j] = 0; }
-
-  // ENABLE UART INTERRUPTS AND FIRE OFF UARTS
-  __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
-  HAL_UART_Receive_IT(&huart2, &input_buffer, 1);
-  NVIC_EnableIRQ(USART2_IRQn);
-  __HAL_UART_ENABLE_IT(&huart3, UART_IT_RXNE);
-  __HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_TC);
-  __HAL_DMA_ENABLE_IT(&hdma_usart3_rx, DMA_IT_HT);
-  //HAL_UART_Receive_DMA(&huart3, &midi_usart_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
-
-  HAL_UART_Receive_DMA(&huart3, &midi_dma_test_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
-
-  synth_init();
-  
-  //mixer();
-  //synth_output();
-  HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer[0], BUF_SIZE);
-  bool pressed = false;
-
-  // turn red led off indicating that init is over
-  LED_SET_CHANNEL(PWM_CHANNEL_RED, 0);
   while (1)
   {
 
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-    //poll_keybs(); // requires: io expander board
-    update_midi();
+
   }
   /* USER CODE END 3 */
 
@@ -332,7 +244,7 @@ void assert_failed(uint8_t* file, uint32_t line)
 { 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
-tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
