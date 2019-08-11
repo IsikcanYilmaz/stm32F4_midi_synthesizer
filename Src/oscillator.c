@@ -6,33 +6,13 @@
 #include "tim.h"
 #include "math.h"
 
-float update_oscillator(Oscillator_t *osc){
-  static float min = 0, max = 0;
-  static uint16_t min16, max16;
-  /* Sine
-  */
-  float z;
-
-  while (osc->phase >= _2PI)
-    osc->phase -= _2PI;
-
-  z = sin(osc->phase);
-  osc->out = osc->amp * z;
-
-  osc->phase += osc->mul * _2PI * Ts * osc->freq; // increment phase
-  //osc->phase +=  _2PI * Ts * osc->freq; // increment phase
-  //__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3 , (uint16_t) (1000 * (osc->out + 0.5)));
-  return osc->out;
-}
-
-float update_oscillator_sawtooth(Oscillator_t *osc){
-  osc->out += osc->increment;
-  return osc->out;
-}
-
 ////////////////////////
-// Below is me copying code from Dekrispator_v2
+// credit to Dekrispator_v2
 #define AMP_MULTIPLIER 0.8
+
+// This function is to be called per sample of a wave. It will 
+// update the phase of the oscillator as well as returning the 
+// output value of it, which is between 0 and 1.
 float waveCompute(Oscillator_t *osc, enum Timbre sound, float freq){
 
   float y;
@@ -62,7 +42,7 @@ float waveCompute(Oscillator_t *osc, enum Timbre sound, float freq){
 }
 
 float oscillatorTriangleTable(Oscillator_t *osc){
-  
+  return 0;
 }
 
 float oscillatorTestPdTable(Oscillator_t *osc){ // Table sine
@@ -72,7 +52,7 @@ float oscillatorTestPdTable(Oscillator_t *osc){ // Table sine
   while (osc->phase >= _2PI){
     osc->phase -= _2PI;
   }
-  int index = (int) round(ALPHA * osc->phase);
+  //int index = (int) round(ALPHA * osc->phase);
   //osc->out = osc->amp * test_pd_array_wavetable[index];
   osc->phase += _2PI * Ts * osc->freq; // increment phase
   return osc->out;
@@ -113,8 +93,9 @@ float oscillatorSine(Oscillator_t *osc){ // Accurate sine
   return osc->out;
 }
 
-float oscillatorSquare(Oscillator_t *osc){}
+float oscillatorSquare(Oscillator_t *osc){
+  return 0;
+}
 float oscillatorSawtooth(Oscillator_t *osc){
-
-
+  return 0;
 }

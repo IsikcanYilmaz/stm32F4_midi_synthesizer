@@ -23,11 +23,6 @@ enum Timbre {
   TEST_PD_TABLE
 };
 
-Oscillator_t osc1;
-
-float update_oscillator(Oscillator_t *osc);
-float update_oscillator_sawtooth(Oscillator_t *osc);
-
 float oscillatorSine(Oscillator_t *osc);
 float oscillatorSineTable(Oscillator_t *osc);
 float oscillatorSquare(Oscillator_t *osc);

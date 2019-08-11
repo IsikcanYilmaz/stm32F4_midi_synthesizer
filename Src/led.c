@@ -22,9 +22,7 @@ uint32_t led_cursor;
 
 int16_t led_speed;
 
-float led_update_oscillator(Oscillator_t *osc){
-  static float min = 0, max = 0;
-  static uint16_t min16, max16;
+static float led_update_oscillator(Oscillator_t *osc){
   /* Sine
   */
   float z;
@@ -68,7 +66,7 @@ void led_init(){
   }
   for (pos = 0; pos < LED_SIGNAL_SIZE; pos++){
     // lets not deal with the oscillator abstraction yet
-    y = led_update_oscillator(&led_lfo);
+    y = led_update_oscillator(&led_lfo); // TODO deal with the oscillator abstraction
     //y = sin((pos * LED_Ts) * _2PI); 
     led_lfo_signal[pos] = (uint16_t) (LED_CEIL/2 * (y + 1));
   }
