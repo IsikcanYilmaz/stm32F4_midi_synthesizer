@@ -5,7 +5,7 @@
 #include "usart.h"
 //#include "synth.h"
 #include "dma.h"
-#include "cmd_uart.h"
+#include "cmd_shell.h"
 
 // https://www.nyu.edu/classes/bello/FMT_files/9_MIDI_code.pdf // 
 // https://users.cs.cf.ac.uk/Dave.Marshall/Multimedia/node158.html //

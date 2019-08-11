@@ -51,7 +51,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-#include "cmd_uart.h"
+#include "cmd_shell.h"
 #include <string.h>
 /* USER CODE END INCLUDE */
 
@@ -299,55 +299,8 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
    * WE RECEIVE GARBAGE BYTES. YOU MAY WANT TO MASK THAT TIME FOR THE TIME BEING
    * AND AT SOME POINT FIX THIS ISSUE IN ITS ROOT. TODO TODO TODO TODO
    */
-#define USB_CDC_BUFFER_SIZE 128
-  static char testBuf[USB_CDC_BUFFER_SIZE];
-  static uint8_t testBufCursor = 0;
-  static bool commandBeingEntered = false;
-
-  uint8_t *rxBuffer = Buf;
-
-  if (commandBeingEntered == false){
-    // Beginning of a command received. '['
-    for (int i = 0; i < *Len; i++){ 
-      if (rxBuffer[i] == '['){
-        testBuf[testBufCursor] = rxBuffer[i];
-        commandBeingEntered = true;
-
-        *Len -= i;
-        rxBuffer = &Buf[i+1];
-        testBufCursor++;
-        break;
-      }
-    }
-  }
-
-  if (commandBeingEntered && *Len > 0){
-
-    // Go through each received byte
-    for (int i = 0; i < *Len; i++){
-      testBuf[testBufCursor] = rxBuffer[i];
-      testBufCursor++;
-      if (rxBuffer[i] == ']'){
-        // Command finished 
-        // ROUTE COMMAND
-        print("]\r\n");
-        testBufCursor = 0;
-        commandBeingEntered = false;
-        break;
-      }
-    }
-    CDC_Transmit_FS(Buf, *Len);
-
-    // Command buffer overflow. reset it
-    if (testBufCursor + *Len > USB_CDC_BUFFER_SIZE){
-      testBufCursor = 0;
-      commandBeingEntered = false;
-    }
-
-  }
-
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
-  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+  uint8_t result;
+  result = cmd_shell_receive(Buf, Len);
   return (USBD_OK);
   /* USER CODE END 6 */
 }
@@ -365,14 +318,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   */
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
 {
-  uint8_t result = USBD_OK;
+  uint8_t result;
   /* USER CODE BEGIN 7 */
-  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
-  if (hcdc->TxState != 0){
-    return USBD_BUSY;
-  }
-  USBD_CDC_SetTxBuffer(&hUsbDeviceFS, Buf, Len);
-  result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
+  result = cmd_shell_transmit(Buf, Len);
   /* USER CODE END 7 */
   return result;
 }

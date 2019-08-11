@@ -36,7 +36,7 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
-#include "cmd_uart.h"
+#include "cmd_shell.h"
 #include "led.h"
 /* USER CODE END 0 */
 
@@ -239,7 +239,7 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
-  cmd_uart_isr();
+  cmd_shell_isr();
   /* USER CODE END USART2_IRQn 1 */
 }
 

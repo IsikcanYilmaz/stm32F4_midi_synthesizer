@@ -80,13 +80,13 @@ Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
 \
 Src/midi.c \
-Src/cmd_uart.c \
+Src/cmd_shell.c \
 Src/led.c \
 Src/oscillator.c \
 Src/sinetable.c \
 Src/sawtoothtable.c \
-
-
+Src/cs43l22.c \
+Src/synth.c \
 
 #Src/midi.c \
 Src/synth.c \
