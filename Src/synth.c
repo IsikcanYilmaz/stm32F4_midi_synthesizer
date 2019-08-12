@@ -13,18 +13,11 @@
 int16_t i2s_buffer[BUF_SIZE]; // THE i2s buffer
 uint16_t counters[NUM_OSCILLATORS], output;
 
-Oscillator_t osc1;
-Oscillator_t osc2;
-Oscillator_t osc3;
-Oscillator_t osc4;
-Oscillator_t osc5;
-Oscillator_t osc6;
-
 Oscillator_t lfo1;
 Oscillator_t lfo2;
 
 VCA_t voices[NUM_VOICES];
-Oscillator_t *oscillators[NUM_VOICES];
+Oscillator_t oscillators[NUM_VOICES];
 
 uint8_t voice_cursor;
 
@@ -40,59 +33,17 @@ void synth_init(){
     vca_set_release(v, 255);
   }
 
-  // main oscillator 
-  osc1.amp = 0.5f;
-  osc1.last_amp = 0.9f;
-  osc1.freq = 0;
-  osc1.phase = 0;
-  osc1.out = 0;
-  osc1.modInd = 0;
-  osc1.mul = 1;
-
-  // 2. oscillator 
-  osc2.amp = 0.5f;
-  osc2.last_amp = 0.9f;
-  osc2.freq = 0;
-  osc2.phase = 0;
-  osc2.out = 0;
-  osc2.modInd = 0;
-  osc2.mul = 1;
-
-  // 3. oscillator 
-  osc3.amp = 0.5f;
-  osc3.last_amp = 0.9f;
-  osc3.freq = 0;
-  osc3.phase = 0;
-  osc3.out = 0;
-  osc3.modInd = 0;
-  osc3.mul = 1;
-
-  // 4. oscillator 
-  osc4.amp = 0.5f;
-  osc4.last_amp = 0.9f;
-  osc4.freq = 0;
-  osc4.phase = 0;
-  osc4.out = 0;
-  osc4.modInd = 0;
-  osc4.mul = 1;
-
-  // 5. oscillator 
-  osc5.amp = 0.5f;
-  osc5.last_amp = 0.9f;
-  osc5.freq = 0;
-  osc5.phase = 0;
-  osc5.out = 0;
-  osc5.modInd = 0;
-  osc5.mul = 1;
-
-  // 6. oscillator 
-  osc6.amp = 0.5f;
-  osc6.last_amp = 0.9f;
-  osc6.freq = 0;
-  osc6.phase = 0;
-  osc6.out = 0;
-  osc6.modInd = 0;
-  osc6.mul = 1;
+  // Initialize the oscillators
+  for (int i = 0; i < NUM_OSCILLATORS; i++){
+    Oscillator_t *o = &oscillators[i];
+    o->amp = 0.5f;
+    o->last_amp = 0.9f;
+    o->freq = 0;
+    o->phase = 0;
+    o->out = 0;
+    o->modInd = 0;
+    o->mul = 1;
+  }
 
   // lfo1 for sine sweep
   lfo1.amp = 0.5f;
@@ -112,13 +63,6 @@ void synth_init(){
   lfo2.modInd = 0;
   lfo2.mul = 1;
 
-  oscillators[0] = &osc1; // TODO make these more general
-  oscillators[1] = &osc2;
-  oscillators[2] = &osc3;
-  oscillators[3] = &osc4;
-  oscillators[4] = &osc5;
-  oscillators[5] = &osc6;
-
   HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
 }
 
@@ -128,50 +72,31 @@ void erase_i2s_buffer(){
   }
 }
 
-
-void play_note(uint8_t note, uint8_t velocity){
-  //TIM1_Config(pitchtbl[note]);
-}
-
-static volatile uint16_t out_test[2];
-
-// fill buf[0]-buf[length] with outputs of the oscillator. 
+// fill buf[begin]-buf[end] with outputs of the oscillator. 
 void make_sound(uint16_t begin, uint16_t end){
-  static uint8_t ch = TIM_CHANNEL_1;
-  static bool pressed = false;
-  static int16_t last_led_speed;
-  static bool playing = false;
-
-  uint32_t test_sum = 0;
-
   uint16_t pos;
   uint16_t *outp;
   float y[NUM_VOICES];
 
+  // For each sample
   for (pos = begin; pos < end; pos++){ 
-    // UPDATE VCA MODULES
     float y_sum = 0;
+
+    // go through all voices, oscillators, calculate the amplitude value of the sample
     for (int i = 0; i < NUM_VOICES; i++){
+      // update the vca
       vca_update(&(voices[i]));
       if (voices[i].amp == 0){
         continue;
       }
-      oscillators[i]->amp = voices[i].amp;
-      waveCompute(oscillators[i], SINE_TABLE, oscillators[i]->freq);
-      y_sum += (oscillators[i]->out) * oscillators[i]->amp;
+      oscillators[i].amp = voices[i].amp;
+
+      // update the oscillator, get its output for the current sample
+      waveCompute(&oscillators[i], SINE_TABLE, oscillators[i].freq);
+      y_sum += (oscillators[i].out) * oscillators[i].amp;
     }
-
-#ifdef SINE_AMP_FREQ_SWEEP
-    // SINE AMPLITUDE AND FREQ SWEEP
-    float lfo2_out = 50 * (waveCompute(&lfo2, SINE_TABLE,  0.01) - 0.1);
-    lfo1.amp = (lfo2_out < 1) ? lfo2_out : 1;
-    lfo1.amp = (osc1.amp > 0.3) ? osc1.amp : 0.3;
-    lfo1.freq = lfo2_out;
-    //float lfo1_out = 8 * (waveCompute(&lfo1, SINE_TABLE,  lfo1.freq) + 1);
-    float lfo1_out = led_signal[led_cursor];
-    osc1.freq = lfo1_out / 8;// * lfo1_out * lfo1_out;
-#endif
-
+    
+    // scale the output, save to i2s_buffer.
     int16_t y_scaled = (int16_t) (y_sum * 0x800);
     i2s_buffer[pos] = (y_scaled);
   }
@@ -200,7 +125,7 @@ void note_on(uint8_t key, uint8_t vel){
       voice_cursor = i;
       break;
     }
-    
+
     // FREE VOICE SLOT FOUND
     if (voices[i].state == VCA_DONE){
       vca = &voices[i];
@@ -208,11 +133,7 @@ void note_on(uint8_t key, uint8_t vel){
       break;
     }
   }
-  
-  //vca seems to be broken with NUM_VOICES == 4.
-  //like when i set somethings state to attack
-  //it freezes. bad. 
-  //
+
   if (vca == NULL){ // ALL ARE USED
     vca = &voices[oldestVoiceIdx];
     voice_cursor = oldestVoiceIdx;
@@ -222,10 +143,8 @@ void note_on(uint8_t key, uint8_t vel){
   vca->noteOnNum = noteNum;
   noteNum++;
   float freq = midi_frequency_table[key];
-  oscillators[voice_cursor]->freq = freq;
-  //print("NOTE ON %d FREQ %f. ASSIGNING TO VOICE # %d\n", key, freq, voice_cursor);
-  
-  print("NOTE ON %d. VOICE %d. VCA %x STATE %d FREQ %f TABLEFREQ %f\n", key, voice_cursor, vca, vca->state, oscillators[voice_cursor]->freq, freq);
+  oscillators[voice_cursor].freq = freq;
+  //print("NOTE ON %d. VOICE %d. VCA %x STATE %d FREQ %f TABLEFREQ %f\n", key, voice_cursor, vca, vca->state, oscillators[voice_cursor].freq, freq);
 
 }
 
@@ -245,3 +164,18 @@ void mixer(){
   synth_output();
   //update_lfo1s();
 }
+
+/////////////
+// On DMA Half transfer and Full transfer, the below two callback functions will be called.
+// The trick is that we update the first half of the i2s_buffer when the first half's transfer
+// is done, update the second half once the transfer of the second half is done and we are transfering
+// the first half again.
+void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s){
+  make_sound(0, BUF_SIZE_DIV2);
+}
+
+
+void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s){
+  make_sound(BUF_SIZE_DIV2, BUF_SIZE);
+}
+//

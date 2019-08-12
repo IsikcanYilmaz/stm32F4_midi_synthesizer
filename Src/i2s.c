@@ -167,14 +167,7 @@ void HAL_I2S_MspDeInit(I2S_HandleTypeDef* i2sHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s){
-  make_sound(0, BUF_SIZE_DIV2);
-}
 
-
-void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s){
-  make_sound(BUF_SIZE_DIV2, BUF_SIZE);
-}
 /* USER CODE END 1 */
 
 /**
