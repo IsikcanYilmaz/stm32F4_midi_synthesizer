@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = f4_test_refactored
+TARGET = f4_test
 
 
 ######################################
@@ -239,10 +239,10 @@ clean:
 # *** EOF ***
 
 install:
-	st-flash write build/f4_test_refactored.bin 0x8000000
+	st-flash write build/f4_test.bin 0x8000000
 
 lldb:
-	lldb build/f4_test_refactored.elf
+	lldb build/f4_test.elf
 
 nanocom:
 	nanocom /dev/ttyACM1 -p n -s 1 -d 7 -f n -e n -b 38400
