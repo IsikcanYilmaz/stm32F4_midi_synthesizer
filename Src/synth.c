@@ -76,7 +76,6 @@ void erase_i2s_buffer(){
 void make_sound(uint16_t begin, uint16_t end){
   uint16_t pos;
   uint16_t *outp;
-  float y[NUM_VOICES];
 
   // For each sample
   for (pos = begin; pos < end; pos++){ 
@@ -109,14 +108,14 @@ void note_on(uint8_t key, uint8_t vel){
   // FIND A VOICE THATS UNUSED
   // IF ALL USED <DECIDE>
   uint32_t oldest = noteNum;
-  uint8_t oldestVoiceIdx = 0;
+  uint8_t oldest_voice_idx = 0;
   for (int i = 0; i < NUM_VOICES; i++){
     //print("VOICE %d STATE %d/%d\n", i, voices[i].state, NUM_VOICES);
 
     // RECORD THE OLDEST HIT NOTE/VCA OBJ
     if (voices[i].noteOnNum < oldest){
       oldest= voices[i].noteOnNum;
-      oldestVoiceIdx = i;
+      oldest_voice_idx = i;
     }
 
     // NOTE ALREADY ON IN A VOICE. RETRIGGER IT
@@ -135,8 +134,8 @@ void note_on(uint8_t key, uint8_t vel){
   }
 
   if (vca == NULL){ // ALL ARE USED
-    vca = &voices[oldestVoiceIdx];
-    voice_cursor = oldestVoiceIdx;
+    vca = &voices[oldest_voice_idx];
+    voice_cursor = oldest_voice_idx;
     //return; // COMMENT THIS LINE TO HAVE VOICE STEALING
   }
   vca_excite(vca, key);
@@ -173,7 +172,6 @@ void mixer(){
 void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s){
   make_sound(0, BUF_SIZE_DIV2);
 }
-
 
 void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s){
   make_sound(BUF_SIZE_DIV2, BUF_SIZE);
