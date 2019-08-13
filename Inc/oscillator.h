@@ -4,7 +4,8 @@
 typedef struct Oscillator {
   float amp; // should be <= 1 for normal sounding output
   float last_amp;
-  float freq; // hertz (sample freq)
+  float noteFreq; // hertz (sample freq)
+  float freq; // hertz (sample freq) (this gets used in the calculations)
   float phase; // radians
   float phi_0; // radians
   float modInd; // modulation index for fm
