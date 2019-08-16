@@ -13,7 +13,7 @@
 // FM SYNTH DEFINES
 #define FM_MODULATION_CARRIER_FREQUENCY 5 // Hz
 #define FM_MODULATION_FREQUENCY 10 // Hz
-#define FM_MODULATION_AMOUNT    221 // Hz
+#define FM_MODULATION_AMOUNT    221 * 2 // Hz
 
 int16_t i2s_buffer[BUF_SIZE]; // THE i2s buffer
 uint16_t counters[NUM_OSCILLATORS], output;
@@ -22,6 +22,8 @@ Oscillator_t lfo1;
 Oscillator_t lfo2;
 
 Oscillator_t modulator; // for fm synthesis
+
+Oscillator_t modulator1; // for modulating the fm frequency
 
 VCA_t voices[NUM_VOICES];
 Oscillator_t oscillators[NUM_VOICES];
@@ -36,8 +38,8 @@ void synth_init(){
     VCA_t *v = &(voices[i]);
     vca_set_attack(v, 10);
     vca_set_decay(v, 1);
-    vca_set_sustain(v, 50);
-    vca_set_release(v, 255);
+    vca_set_sustain(v, 255);
+    vca_set_release(v, 40);
   }
 
   // Initialize the oscillators
@@ -59,6 +61,12 @@ void synth_init(){
   modulator.mul = 1;
   modulator.out = 0;
 
+  modulator1.amp = 0.5f;
+  modulator1.freq = 1;
+  modulator1.phase = 0;
+  modulator1.mul = 1;
+  modulator1.out = 0;
+
   HAL_I2S_Transmit_DMA(&hi2s3, &i2s_buffer, BUF_SIZE);
 }
 
@@ -77,6 +85,11 @@ void make_sound(uint16_t begin, uint16_t end){
   for (pos = begin; pos < end; pos++){ 
     float y_sum = 0;
 
+    // update the fm modulator. this is done per sample and not per voice
+    waveCompute(&modulator1, SINE_TABLE, modulator1.freq);
+    //modulator.freq = FM_MODULATION_FREQUENCY + (modulator1.out * FM_MODULATION_AMOUNT);
+    waveCompute(&modulator, SINE_TABLE, modulator.freq);
+
     // go through all voices, oscillators, calculate the amplitude value of the sample
     for (int i = 0; i < NUM_VOICES; i++){
       // update the vca
@@ -86,18 +99,17 @@ void make_sound(uint16_t begin, uint16_t end){
       }
       oscillators[i].amp = voices[i].amp;
 
-      // update the fm modulator 
-      waveCompute(&modulator, SINE_TABLE, modulator.freq);
-      
+
+
       // set main oscillator's frequency to the output of the fm modulator
-      oscillators[i].freq = oscillators[i].noteFreq + (FM_MODULATION_AMOUNT * modulator.out);
+      oscillators[i].freq = oscillators[i].noteFreq + (FM_MODULATION_AMOUNT * modulator1.out * modulator.out);
 
       // update the oscillator, get its output for the current sample
       waveCompute(&oscillators[i], SINE_TABLE, oscillators[i].freq);
 
       y_sum += (oscillators[i].out) * oscillators[i].amp;
     }
-    
+
     // scale the output, save to i2s_buffer.
     int16_t y_scaled = (int16_t) (y_sum * 0x800);
     i2s_buffer[pos] = (y_scaled);
