@@ -318,7 +318,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   */
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
 {
-  uint8_t result;
+  uint8_t result = USBD_OK;
   /* USER CODE BEGIN 7 */
   result = cmd_shell_cdc_transmit(Buf, Len);
   /* USER CODE END 7 */
