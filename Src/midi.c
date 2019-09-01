@@ -19,7 +19,9 @@ volatile uint16_t midi_usart_buffer_index = 0;
 volatile uint8_t midi_dma_buffer[MIDI_DMA_BUFFER_SIZE_BYTES];
 
 void midi_init(){
+#if !CNFG_MIDI_OVER_USB
   HAL_UART_Receive_DMA(&huart3, (uint8_t *) &midi_dma_buffer, MIDI_DMA_BUFFER_SIZE_BYTES);
+#endif
 }
 
 // puts packet in fifo. increments tail

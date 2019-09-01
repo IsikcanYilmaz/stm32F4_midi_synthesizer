@@ -15,9 +15,9 @@ char output_buffer[USART_OUT_BUFFER_SIZE];
 uint16_t input_buffer_cursor = 0;
 
 void cmd_shell_init(){
-#if USB_CDC_UART
+#if CMD_SHELL_USB_CDC
 
-#else
+#elif CMD_SHELL_USART
   cmd_shell_interrupt_enable(true);
 #endif
 }

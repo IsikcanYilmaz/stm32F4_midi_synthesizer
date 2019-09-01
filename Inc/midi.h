@@ -29,6 +29,7 @@
 
 #define MIDI_BUFFER_IS_EMPTY (midi_packet_buffer_head == midi_packet_buffer_tail)
 
+
 typedef struct MIDIPacket {
   uint8_t status_byte;
   uint8_t data_byte1;
