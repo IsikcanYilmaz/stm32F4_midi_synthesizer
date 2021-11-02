@@ -12,4 +12,5 @@ so far it can:
 todo:
 - optimization. too many float ops in the code. not necessary.
 - midi knobs.
+- filters.
 - audio effects.
