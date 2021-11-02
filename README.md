@@ -7,7 +7,7 @@ so far it can:
 - take in midi signals from a 5pin midi connector.
 - wavetable synthesis, sin, square, triangle waves.
 - ADSR envelope.
-- 4 sounds sound okay. needs optimizing.
+- 4 voices sound okay. needs optimizing.
 
 todo:
 - optimization. too many float ops in the code. not necessary.
